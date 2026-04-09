@@ -5,6 +5,7 @@ import { Mic, MicOff, Volume2, VolumeX, Key, Settings, Hexagon, X } from "lucide
 import VoiceOrb, { type OrbState } from "@/components/VoiceOrb";
 import { useToast } from "@/components/ToastSystem";
 import { STATS, FRIDAY_META, SKILL_CATEGORIES, AGENT_TIERS, QUICK_ACTIONS, CAPABILITY_MODULES } from "@/data/friday-data";
+import { getJarvisCapabilitiesPrompt } from "@/data/jarvis-registry";
 import clsx from "clsx";
 
 // ═══ NUCLEAR F.R.I.D.A.Y. SYSTEM PROMPT ═══
@@ -50,6 +51,8 @@ The user may have told you things previously. Here is what you remember:
 ## Current Context
 - Platform: F.R.I.D.A.Y. Autonomous Intelligence Dashboard
 - Deployment: Vercel Edge Network
+
+${getJarvisCapabilitiesPrompt()}
 - Version: ${FRIDAY_META.version}
 - Status: All systems nominal
 `;

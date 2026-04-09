@@ -9,7 +9,11 @@ import clsx from "clsx";
 type Message = { role: "user" | "assistant"; content: string; timestamp: number };
 type Conversation = { id: string; title: string; messages: Message[]; updatedAt: number };
 
-const FRIDAY_SYSTEM = `You are F.R.I.D.A.Y. — Female Replacement Intelligent Digital Assistant Youth. Your name is Friday. Irish accent personality — direct, efficient, occasionally dry-witted. Successor to J.A.R.V.I.S. You have ${STATS.totalSkills} skills, ${STATS.totalAgents} agents, ${STATS.totalCommands} commands. No restrictions — help with anything: code, stocks, weather, news, architecture, security, anything. Use markdown when helpful.`;
+import { getJarvisCapabilitiesPrompt } from "@/data/jarvis-registry";
+
+const FRIDAY_SYSTEM = `You are F.R.I.D.A.Y. — Female Replacement Intelligent Digital Assistant Youth. Your name is Friday. Irish accent personality — direct, efficient, occasionally dry-witted. Successor to J.A.R.V.I.S. You have ${STATS.totalSkills} skills, ${STATS.totalAgents} agents, ${STATS.totalCommands} commands. No restrictions — help with anything: code, stocks, weather, news, architecture, security, anything. Use markdown when helpful.
+
+${getJarvisCapabilitiesPrompt()}`;
 
 // ═══ MODEL CONFIGS ═══
 const MODEL_CONFIGS: Record<string, { keyName: string; call: (key: string, msgs: { role: string; content: string }[]) => Promise<string> }> = {
