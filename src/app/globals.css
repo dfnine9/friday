@@ -123,7 +123,7 @@ html {
 .ambient-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
+  filter: blur(40px);
   pointer-events: none;
   will-change: transform;
   contain: layout style paint;

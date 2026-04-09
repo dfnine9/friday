@@ -23,13 +23,11 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
       className={clsx("relative flex items-center justify-center shrink-0", className)}
       style={{ width: s.container, height: s.container }}
     >
-      {/* Outer ambient glow */}
+      {/* Outer ambient glow — static, no blur to avoid compositor layer */}
       <div
         className="absolute inset-0 rounded-full"
         style={{
-          background: "radial-gradient(circle, rgba(24,160,255,0.2) 0%, rgba(24,86,255,0.08) 50%, transparent 70%)",
-          filter: "blur(8px)",
-          animation: "reactor-energy-wave 4s ease-in-out infinite",
+          background: "radial-gradient(circle, rgba(24,160,255,0.15) 0%, rgba(24,86,255,0.06) 50%, transparent 70%)",
         }}
       />
 
@@ -42,15 +40,6 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
         style={{ overflow: "visible" }}
       >
         <defs>
-          {/* Golden glow filter */}
-          <filter id={`glow-${size}`} x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="2" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
-          <filter id={`glow-strong-${size}`} x="-100%" y="-100%" width="300%" height="300%">
-            <feGaussianBlur stdDeviation="4" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
           {/* Gradient for rings */}
           <linearGradient id={`ring-grad-${size}`} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#18a0ff" stopOpacity="0.9" />
@@ -86,7 +75,6 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
               strokeWidth={i === 0 ? 2 : 1.5}
               strokeLinecap="round"
               strokeDasharray={`${Math.PI * r * 0.6} ${Math.PI * r * 1.4}`}
-              filter={`url(#glow-${size})`}
               style={{
                 transformOrigin: `${center}px ${center}px`,
                 animation: `${i % 2 === 0 ? "reactor-spin" : "reactor-spin-reverse"} ${6 + i * 4}s linear infinite`,
@@ -150,7 +138,6 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
               cy={center}
               r={particleSize}
               fill="#18a0ff"
-              filter={`url(#glow-${size})`}
               style={{
                 transformOrigin: `${center}px ${center}px`,
                 animation: `reactor-spin ${duration}s linear infinite`,
@@ -177,7 +164,6 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
           cy={center}
           r={s.core}
           fill="rgba(24,160,255,0.2)"
-          filter={`url(#glow-strong-${size})`}
         />
         {/* Core bright center */}
         <circle
@@ -186,7 +172,6 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
           r={s.core * 0.6}
           fill="#18a0ff"
           opacity={0.9}
-          filter={`url(#glow-strong-${size})`}
         />
         {/* Core hot center */}
         <circle
