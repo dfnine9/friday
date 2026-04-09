@@ -1,101 +1,56 @@
 "use client";
 
-import { useState } from "react";
-import Sidebar from "@/components/Sidebar";
-import TopBar from "@/components/TopBar";
-import OverviewPanel from "@/components/OverviewPanel";
-import SkillsPanel from "@/components/SkillsPanel";
-import StatusPanel from "@/components/StatusPanel";
-import ActionsPanel from "@/components/ActionsPanel";
-import AnalyticsPanel from "@/components/AnalyticsPanel";
+import Navbar from "@/components/Navbar";
+import HeroSection from "@/components/HeroSection";
+import MetricsSection from "@/components/MetricsSection";
+import CapabilitiesSection from "@/components/CapabilitiesSection";
+import SkillsSection from "@/components/SkillsSection";
+import AgentsSection from "@/components/AgentsSection";
+import StatusSection from "@/components/StatusSection";
+import ServicesSection from "@/components/ServicesSection";
+import ActionsSection from "@/components/ActionsSection";
+import AnalyticsSection from "@/components/AnalyticsSection";
+import PerformanceSection from "@/components/PerformanceSection";
+import TimelineSection from "@/components/TimelineSection";
+import TerminalSection from "@/components/TerminalSection";
+import IntegrationsSection from "@/components/IntegrationsSection";
+import Footer from "@/components/Footer";
 
-const PANELS: Record<string, React.ComponentType> = {
-  overview: OverviewPanel,
-  skills: SkillsPanel,
-  status: StatusPanel,
-  actions: ActionsPanel,
-  analytics: AnalyticsPanel,
-};
-
-export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState("overview");
-  const Panel = PANELS[activeTab] ?? OverviewPanel;
-
+export default function FridayDashboard() {
   return (
-    <div className="h-screen flex dot-grid relative overflow-hidden">
+    <div className="relative dot-grid">
       {/* ═══ AMBIENT BLOB LAYER ═══
-          These colored orbs sit behind everything.
-          The glass panels blur them, creating visible refraction.
-          This is the soul of glassmorphism — without them it's just gray boxes. */}
+          These colored orbs span the full page height.
+          Glass panels blur them → visible refraction → real glassmorphism. */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {/* Primary blue blob — top left */}
-        <div
-          className="ambient-blob animate-blob"
-          style={{
-            width: 500, height: 500,
-            background: "radial-gradient(circle, #1856FF 0%, transparent 70%)",
-            top: "-5%", left: "10%",
-            opacity: 0.25,
-          }}
-        />
-        {/* Accent purple blob — center right */}
-        <div
-          className="ambient-blob animate-blob"
-          style={{
-            width: 450, height: 450,
-            background: "radial-gradient(circle, #7c3aed 0%, transparent 70%)",
-            top: "30%", right: "5%",
-            opacity: 0.2,
-            animationDelay: "-7s",
-          }}
-        />
-        {/* Cyan blob — bottom center */}
-        <div
-          className="ambient-blob animate-blob"
-          style={{
-            width: 400, height: 400,
-            background: "radial-gradient(circle, #06b6d4 0%, transparent 70%)",
-            bottom: "0%", left: "35%",
-            opacity: 0.18,
-            animationDelay: "-14s",
-          }}
-        />
-        {/* Rose blob — bottom left */}
-        <div
-          className="ambient-blob animate-blob"
-          style={{
-            width: 350, height: 350,
-            background: "radial-gradient(circle, #f43f5e 0%, transparent 70%)",
-            bottom: "15%", left: "-5%",
-            opacity: 0.12,
-            animationDelay: "-4s",
-          }}
-        />
-        {/* Green blob — top right */}
-        <div
-          className="ambient-blob animate-blob"
-          style={{
-            width: 300, height: 300,
-            background: "radial-gradient(circle, #07CA6B 0%, transparent 70%)",
-            top: "5%", right: "25%",
-            opacity: 0.12,
-            animationDelay: "-10s",
-          }}
-        />
+        <div className="ambient-blob animate-blob" style={{ width: 600, height: 600, background: "radial-gradient(circle, #1856FF 0%, transparent 70%)", top: "-5%", left: "5%", opacity: 0.22 }} />
+        <div className="ambient-blob animate-blob" style={{ width: 500, height: 500, background: "radial-gradient(circle, #7c3aed 0%, transparent 70%)", top: "25%", right: "0%", opacity: 0.18, animationDelay: "-7s" }} />
+        <div className="ambient-blob animate-blob" style={{ width: 450, height: 450, background: "radial-gradient(circle, #06b6d4 0%, transparent 70%)", top: "50%", left: "30%", opacity: 0.15, animationDelay: "-14s" }} />
+        <div className="ambient-blob animate-blob" style={{ width: 400, height: 400, background: "radial-gradient(circle, #f43f5e 0%, transparent 70%)", top: "70%", left: "-5%", opacity: 0.1, animationDelay: "-4s" }} />
+        <div className="ambient-blob animate-blob" style={{ width: 350, height: 350, background: "radial-gradient(circle, #07CA6B 0%, transparent 70%)", top: "10%", right: "20%", opacity: 0.1, animationDelay: "-10s" }} />
+        <div className="ambient-blob animate-blob" style={{ width: 500, height: 500, background: "radial-gradient(circle, #E89558 0%, transparent 70%)", top: "85%", right: "10%", opacity: 0.12, animationDelay: "-16s" }} />
       </div>
 
-      {/* Sidebar */}
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      {/* Navigation */}
+      <Navbar />
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0 relative z-[1]">
-        <TopBar />
-        <main className="flex-1 overflow-y-auto px-6 py-6">
-          <div className="max-w-[1400px] mx-auto">
-            <Panel />
-          </div>
-        </main>
-      </div>
+      {/* Sections */}
+      <main className="relative z-[1]">
+        <HeroSection />
+        <MetricsSection />
+        <CapabilitiesSection />
+        <SkillsSection />
+        <AgentsSection />
+        <StatusSection />
+        <ServicesSection />
+        <ActionsSection />
+        <AnalyticsSection />
+        <PerformanceSection />
+        <TimelineSection />
+        <TerminalSection />
+        <IntegrationsSection />
+        <Footer />
+      </main>
     </div>
   );
 }

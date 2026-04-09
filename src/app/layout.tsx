@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${jakarta.variable} ${jetbrains.variable} h-full`}>
-      <body className="h-full overflow-hidden antialiased">{children}</body>
+      <body className="min-h-full antialiased">{children}</body>
     </html>
   );
 }

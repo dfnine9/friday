@@ -289,3 +289,65 @@ export const MCU_APPEARANCES = [
   { film: "Avengers: Infinity War", year: 2018, role: "Mark 50 nanotech management" },
   { film: "Avengers: Endgame", year: 2019, role: "Final battle coordination" },
 ];
+
+// ═══ INTEGRATIONS ═══
+
+export type Integration = {
+  name: string;
+  description: string;
+  status: "connected" | "available" | "coming-soon";
+  color: string;
+  category: string;
+};
+
+export const INTEGRATIONS: Integration[] = [
+  { name: "Claude Opus 4.6", description: "Primary reasoning engine", status: "connected", color: "#1856FF", category: "AI Core" },
+  { name: "MCP Registry", description: "Model Context Protocol hub", status: "connected", color: "#7c3aed", category: "Protocol" },
+  { name: "Vercel Edge", description: "Global edge deployment", status: "connected", color: "#fff", category: "Infrastructure" },
+  { name: "Vector Store", description: "2.4M embedding index", status: "connected", color: "#07CA6B", category: "Storage" },
+  { name: "GitHub Actions", description: "CI/CD pipeline automation", status: "connected", color: "#fff", category: "DevOps" },
+  { name: "Ruflo Swarm", description: "Multi-agent orchestration", status: "connected", color: "#E89558", category: "Orchestration" },
+  { name: "Semgrep", description: "SAST vulnerability scanning", status: "connected", color: "#EA2143", category: "Security" },
+  { name: "OpenTelemetry", description: "Distributed tracing", status: "available", color: "#06b6d4", category: "Observability" },
+  { name: "Kubernetes", description: "Container orchestration", status: "available", color: "#1856FF", category: "Infrastructure" },
+  { name: "Terraform", description: "Infrastructure as Code", status: "available", color: "#7c3aed", category: "DevOps" },
+  { name: "Datadog", description: "APM monitoring", status: "coming-soon", color: "#6C5CE7", category: "Observability" },
+  { name: "PagerDuty", description: "Incident management", status: "coming-soon", color: "#07CA6B", category: "Operations" },
+];
+
+// ═══ TERMINAL COMMANDS ═══
+
+export const TERMINAL_LINES = [
+  { type: "input" as const, text: "friday --init --mode=autonomous" },
+  { type: "output" as const, text: "F.R.I.D.A.Y. v2.0 initializing..." },
+  { type: "output" as const, text: "Loading 6,502 skill modules..." },
+  { type: "output" as const, text: "Activating 942 autonomous agents..." },
+  { type: "output" as const, text: "Neural cores: 8/8 online" },
+  { type: "output" as const, text: "Context window: 1,000,000 tokens allocated" },
+  { type: "output" as const, text: "Threat intelligence: active — 2,847 threats blocked" },
+  { type: "output" as const, text: "MCP registry: 12 protocols connected" },
+  { type: "success" as const, text: "✓ All systems nominal. Awaiting commands." },
+  { type: "input" as const, text: "friday /code-review --deep --security" },
+  { type: "output" as const, text: "Spawning multi-agent review swarm..." },
+  { type: "output" as const, text: "  → security-auditor: scanning 342 files" },
+  { type: "output" as const, text: "  → code-reviewer: analyzing architecture" },
+  { type: "output" as const, text: "  → performance-engineer: profiling hotspots" },
+  { type: "success" as const, text: "✓ Review complete. 0 critical, 3 warnings, 12 suggestions." },
+];
+
+// ═══ NAV SECTIONS ═══
+
+export const NAV_SECTIONS = [
+  { id: "hero", label: "Home" },
+  { id: "metrics", label: "Metrics" },
+  { id: "capabilities", label: "Capabilities" },
+  { id: "skills", label: "Skills" },
+  { id: "agents", label: "Agents" },
+  { id: "status", label: "Status" },
+  { id: "services", label: "Services" },
+  { id: "actions", label: "Actions" },
+  { id: "analytics", label: "Analytics" },
+  { id: "timeline", label: "Timeline" },
+  { id: "terminal", label: "Terminal" },
+  { id: "integrations", label: "Integrations" },
+];
