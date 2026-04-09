@@ -13,18 +13,18 @@ export default function LazySection({ children, id }: { children: ReactNode; id?
       ([entry]) => {
         if (entry.isIntersecting) {
           setVisible(true);
-          observer.disconnect(); // Once visible, stay mounted
+          observer.disconnect();
         }
       },
-      { rootMargin: "200px" } // Start loading 200px before visible
+      { rootMargin: "600px" } // Load 600px before visible — very eager
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <div ref={ref} id={id} style={{ minHeight: visible ? undefined : "50vh" }}>
-      {visible ? children : null}
+    <div ref={ref} id={id}>
+      {visible ? children : <div style={{ minHeight: "20vh" }} />}
     </div>
   );
 }
