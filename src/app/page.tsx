@@ -20,7 +20,6 @@ import ChatSection from "@/components/ChatSection";
 import DownloadSection from "@/components/DownloadSection";
 import IntegrationsSection from "@/components/IntegrationsSection";
 import Footer from "@/components/Footer";
-import LazySection from "@/components/LazySection";
 
 export default function FridayDashboard() {
   return (
@@ -44,16 +43,16 @@ export default function FridayDashboard() {
             <CapabilitiesSection />
             <SkillsSection />
             <AgentsSection />
-            <LazySection><StatusSection /></LazySection>
-            <LazySection><ServicesSection /></LazySection>
-            <LazySection><ActionsSection /></LazySection>
-            <LazySection><AnalyticsSection /></LazySection>
-            <LazySection><PerformanceSection /></LazySection>
-            <LazySection><TimelineSection /></LazySection>
-            <LazySection><TerminalSection /></LazySection>
-            <LazySection><ChatSection /></LazySection>
-            <LazySection><DownloadSection /></LazySection>
-            <LazySection><IntegrationsSection /></LazySection>
+            <StatusSection />
+            <ServicesSection />
+            <ActionsSection />
+            <AnalyticsSection />
+            <PerformanceSection />
+            <TimelineSection />
+            <TerminalSection />
+            <ChatSection />
+            <DownloadSection />
+            <IntegrationsSection />
             <Footer />
           </main>
         </div>
