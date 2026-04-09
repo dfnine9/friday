@@ -18,6 +18,7 @@ import {
   Area,
   BarChart,
   Bar,
+  Cell,
   XAxis,
   YAxis,
   Tooltip,
@@ -148,16 +149,16 @@ export default function AnalyticsPanel() {
             <AreaChart data={USAGE_DATA}>
               <defs>
                 <linearGradient id="gSkills" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#1856FF" stopOpacity={0.15} />
-                  <stop offset="100%" stopColor="#1856FF" stopOpacity={0} />
+                  <stop offset="0%" stopColor="#1856FF" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="#1856FF" stopOpacity={0.02} />
                 </linearGradient>
                 <linearGradient id="gAgents" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#6C5CE7" stopOpacity={0.1} />
-                  <stop offset="100%" stopColor="#6C5CE7" stopOpacity={0} />
+                  <stop offset="0%" stopColor="#6C5CE7" stopOpacity={0.25} />
+                  <stop offset="100%" stopColor="#6C5CE7" stopOpacity={0.02} />
                 </linearGradient>
                 <linearGradient id="gCommands" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#07CA6B" stopOpacity={0.08} />
-                  <stop offset="100%" stopColor="#07CA6B" stopOpacity={0} />
+                  <stop offset="0%" stopColor="#07CA6B" stopOpacity={0.2} />
+                  <stop offset="100%" stopColor="#07CA6B" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)" vertical={false} />
@@ -298,7 +299,7 @@ export default function AnalyticsPanel() {
                     "#1856FF", "#EA2143", "#6C5CE7", "#1856FF",
                     "#E89558", "#07CA6B", "#3A344E", "#1856FF",
                   ].map((color, i) => (
-                    <rect key={i} fill={color} fillOpacity={0.75} />
+                    <Cell key={i} fill={color} fillOpacity={0.8} />
                   ))}
                 </Bar>
               </BarChart>
