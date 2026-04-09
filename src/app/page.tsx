@@ -16,6 +16,8 @@ import AnalyticsSection from "@/components/AnalyticsSection";
 import PerformanceSection from "@/components/PerformanceSection";
 import TimelineSection from "@/components/TimelineSection";
 import TerminalSection from "@/components/TerminalSection";
+import ChatSection from "@/components/ChatSection";
+import DownloadSection from "@/components/DownloadSection";
 import IntegrationsSection from "@/components/IntegrationsSection";
 import Footer from "@/components/Footer";
 
@@ -52,6 +54,8 @@ export default function FridayDashboard() {
             <PerformanceSection />
             <TimelineSection />
             <TerminalSection />
+            <ChatSection />
+            <DownloadSection />
             <IntegrationsSection />
             <Footer />
           </main>

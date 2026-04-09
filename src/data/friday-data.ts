@@ -349,5 +349,7 @@ export const NAV_SECTIONS = [
   { id: "analytics", label: "Analytics" },
   { id: "timeline", label: "Timeline" },
   { id: "terminal", label: "Terminal" },
+  { id: "chat", label: "AI Chat" },
+  { id: "downloads", label: "Downloads" },
   { id: "integrations", label: "Integrations" },
 ];
