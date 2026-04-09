@@ -28,7 +28,7 @@ export default function MetricsSection() {
           <h2>Core Metrics</h2>
           <p>Real-time telemetry from the F.R.I.D.A.Y. autonomous operations platform. Click any card to copy.</p>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           {metrics.map((m) => (
             <button
               key={m.label}

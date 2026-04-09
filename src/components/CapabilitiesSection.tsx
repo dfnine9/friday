@@ -29,7 +29,7 @@ export default function CapabilitiesSection() {
           <h2>Capability Modules</h2>
           <p>Operational systems mapped from MCU-demonstrated abilities. Click to expand details.</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {CAPABILITY_MODULES.map((mod) => {
             const isExpanded = expandedId === mod.id;
             return (

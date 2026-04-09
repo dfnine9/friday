@@ -13,7 +13,7 @@ export default function AgentsSection() {
           <h2>Agent Fleet</h2>
           <p>942 autonomous agents organized in tiered hierarchies. Click any agent for details.</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 stagger">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {AGENT_TIERS.map((tier) => (
             <div key={tier.tier} className="glass-card luminous-border p-6 relative overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: `linear-gradient(90deg, ${tier.color}, ${tier.color}44)`, boxShadow: `0 0 12px ${tier.color}30` }} />

@@ -35,7 +35,7 @@ export default function ActionsSection() {
           <h2>Quick Actions</h2>
           <p>One-click access to 966 commands. Copy to clipboard or execute directly.</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {QUICK_ACTIONS.map((action) => {
             const isRunning = runningId === action.command;
             return (

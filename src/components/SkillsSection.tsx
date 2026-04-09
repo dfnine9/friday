@@ -44,7 +44,7 @@ export default function SkillsSection() {
           </div>
         )}
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 stagger">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {SKILL_CATEGORIES.map((cat) => {
             const isSelected = selected.has(cat.name);
             const isDimmed = hasFilter && !isSelected;

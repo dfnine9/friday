@@ -35,7 +35,7 @@ export default function IntegrationsSection() {
           <h2>Integration Hub</h2>
           <p>Connected systems and protocols. Click Connect to activate available integrations.</p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 stagger">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {INTEGRATIONS.map((int) => {
             const overrideStatus = statuses[int.name];
             const isConnecting = connecting.has(int.name);

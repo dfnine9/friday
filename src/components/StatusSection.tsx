@@ -75,7 +75,7 @@ export default function StatusSection() {
               <Gauge value={18} label="Network" color="#EA2143" />
             </div>
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 stagger">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               { icon: <Cpu className="w-5 h-5" />, label: "Neural Cores", value: "8 / 8 Active", color: "#1856FF" },
               { icon: <MemoryStick className="w-5 h-5" />, label: "Context Window", value: "1,000,000 tokens", color: "#7c3aed" },

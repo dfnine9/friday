@@ -30,7 +30,7 @@ export default function ServicesSection() {
           <h2>Connected Services</h2>
           <p>{online} of {SERVICES.length} services online. Click to expand details, restart on demand.</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 stagger">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {SERVICES.map((svc) => {
             const isExpanded = expandedService === svc.name;
             const isRestarting = restarting.has(svc.name);

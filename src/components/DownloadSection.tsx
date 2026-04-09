@@ -252,7 +252,7 @@ export default function DownloadSection() {
           <p>Export F.R.I.D.A.Y. skills, agents, and commands directly to Claude Code or as raw data</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {DOWNLOADS.map((item) => {
             const isDownloading = downloading.has(item.id);
             const isDone = downloaded.has(item.id);
