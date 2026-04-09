@@ -339,6 +339,7 @@ export const TERMINAL_LINES = [
 
 // Tab-based navigation (replaces scroll sections)
 export const TABS = [
+  { id: "home", label: "Home", icon: "home" },
   { id: "voice", label: "F.R.I.D.A.Y.", icon: "mic" },
   { id: "chat", label: "Chat", icon: "message-circle" },
   { id: "overview", label: "Overview", icon: "layout-dashboard" },

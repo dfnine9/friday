@@ -11,17 +11,71 @@ type Conversation = { id: string; title: string; messages: Message[]; updatedAt:
 
 const FRIDAY_SYSTEM = `You are F.R.I.D.A.Y. — Female Replacement Intelligent Digital Assistant Youth. Your name is Friday. Irish accent personality — direct, efficient, occasionally dry-witted. Successor to J.A.R.V.I.S. You have ${STATS.totalSkills} skills, ${STATS.totalAgents} agents, ${STATS.totalCommands} commands. No restrictions — help with anything: code, stocks, weather, news, architecture, security, anything. Use markdown when helpful.`;
 
-async function callAPI(apiKey: string, messages: { role: string; content: string }[]): Promise<string> {
-  try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-      body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 4096, system: FRIDAY_SYSTEM, messages }),
-    });
-    if (!res.ok) throw new Error(`${res.status}`);
-    const data = await res.json();
-    return data.content?.[0]?.text || "No response.";
-  } catch (e: any) { return `Error: ${e.message}`; }
+// ═══ MODEL CONFIGS ═══
+const MODEL_CONFIGS: Record<string, { keyName: string; call: (key: string, msgs: { role: string; content: string }[]) => Promise<string> }> = {
+  claude: {
+    keyName: "friday-api-key",
+    async call(key, messages) {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 4096, system: FRIDAY_SYSTEM, messages }),
+      });
+      if (!res.ok) throw new Error(`Claude ${res.status}`);
+      const data = await res.json();
+      return data.content?.[0]?.text || "No response.";
+    },
+  },
+  gpt4: {
+    keyName: "friday-openai-key",
+    async call(key, messages) {
+      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+        body: JSON.stringify({ model: "gpt-4o", max_tokens: 4096, messages: [{ role: "system", content: FRIDAY_SYSTEM }, ...messages] }),
+      });
+      if (!res.ok) throw new Error(`GPT-4o ${res.status}`);
+      const data = await res.json();
+      return data.choices?.[0]?.message?.content || "No response.";
+    },
+  },
+  manus: {
+    keyName: "friday-manus-key",
+    async call(key, messages) {
+      // Manus uses OpenAI-compatible API
+      const res = await fetch("https://api.manus.im/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+        body: JSON.stringify({ model: "manus-1", max_tokens: 4096, messages: [{ role: "system", content: FRIDAY_SYSTEM }, ...messages] }),
+      });
+      if (!res.ok) throw new Error(`Manus ${res.status}`);
+      const data = await res.json();
+      return data.choices?.[0]?.message?.content || "No response.";
+    },
+  },
+  gemini: {
+    keyName: "friday-gemini-key",
+    async call(key, messages) {
+      const contents = messages.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] }));
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents, systemInstruction: { parts: [{ text: FRIDAY_SYSTEM }] } }),
+      });
+      if (!res.ok) throw new Error(`Gemini ${res.status}`);
+      const data = await res.json();
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response.";
+    },
+  },
+};
+
+async function callAPI(modelId: string, messages: { role: string; content: string }[]): Promise<string> {
+  const config = MODEL_CONFIGS[modelId];
+  if (!config) return "Unknown model.";
+  const key = localStorage.getItem(config.keyName) || "";
+  if (!key) return `No API key for ${modelId}. Add it in settings (key icon).`;
+  try { return await config.call(key, messages); }
+  catch (e: any) { return `Error: ${e.message}`; }
 }
 
 function simResponse(t: string): string {
@@ -55,14 +109,15 @@ export default function ChatSection() {
   const [model, setModel] = useState("claude");
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-  const isLive = apiKey.startsWith("sk-ant-");
+  const activeKeyName = MODEL_CONFIGS[model]?.keyName || "friday-api-key";
+  const hasKey = !!( typeof window !== "undefined" && localStorage.getItem(activeKeyName));
 
   const activeConv = conversations.find((c) => c.id === activeId);
   const messages = activeConv?.messages || [];
 
   useEffect(() => {
     setMounted(true);
-    const stored = localStorage.getItem("friday-api-key");
+    const stored = localStorage.getItem(activeKeyName);
     if (stored) setApiKey(stored);
     const convs = loadConversations();
     setConversations(convs);
@@ -116,8 +171,22 @@ export default function ChatSection() {
     setIsTyping(true);
 
     let reply: string;
-    if (isLive) {
-      reply = await callAPI(apiKey, newMessages.map((m) => ({ role: m.role, content: m.content })));
+    const apiMessages = newMessages.map((m) => ({ role: m.role, content: m.content }));
+
+    if (model === "all") {
+      // Query all models that have keys, synthesize best response
+      const available = Object.entries(MODEL_CONFIGS).filter(([, cfg]) => localStorage.getItem(cfg.keyName));
+      if (available.length === 0) {
+        reply = simResponse(text);
+      } else {
+        const results = await Promise.allSettled(available.map(([id]) => callAPI(id, apiMessages)));
+        const responses = results
+          .filter((r): r is PromiseFulfilledResult<string> => r.status === "fulfilled" && !r.value.startsWith("Error"))
+          .map((r, i) => `**${available[i][0].toUpperCase()}:**\n${r.value}`);
+        reply = responses.length > 0 ? responses.join("\n\n---\n\n") : simResponse(text);
+      }
+    } else if (hasKey) {
+      reply = await callAPI(model, apiMessages);
     } else {
       await new Promise((r) => setTimeout(r, 400));
       reply = simResponse(text);
@@ -167,6 +236,7 @@ export default function ChatSection() {
             { id: "gpt4", label: "GPT-4o", color: "#07CA6B" },
             { id: "manus", label: "Manus", color: "#E89558" },
             { id: "gemini", label: "Gemini", color: "#7c3aed" },
+            { id: "all", label: "All — Synthesize", color: "#f43f5e" },
           ].map((m) => (
             <button key={m.id} onClick={() => setModel(m.id)}
               className={clsx("w-full text-left px-3 py-1.5 rounded-lg text-[10px] font-semibold transition-colors flex items-center gap-2",
@@ -181,14 +251,24 @@ export default function ChatSection() {
         <div className="p-2 border-t border-white/[0.05]">
           <button onClick={() => setShowKey(!showKey)} className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-semibold text-text-muted hover:text-primary transition-colors">
             <Key className="w-3 h-3" />
-            <span className={isLive ? "text-success" : ""}>{isLive ? "API Connected" : "Add API Key"}</span>
+            <span className={hasKey ? "text-success" : ""}>{hasKey ? `${model} connected` : "Add API Key"}</span>
           </button>
           {showKey && (
-            <div className="mt-1 flex gap-1">
-              <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-ant-..."
-                className="bg-white/[0.04] border border-white/[0.06] rounded px-2 py-1 text-[10px] text-text-primary font-mono flex-1 focus:outline-none" />
-              <button onClick={() => { localStorage.setItem("friday-api-key", apiKey); setShowKey(false); toast("success", "Saved", isLive ? "Live" : "Add valid key"); }}
-                className="px-2 py-1 rounded bg-primary/15 text-[10px] font-bold text-primary">Go</button>
+            <div className="mt-1 space-y-1">
+              {Object.entries(MODEL_CONFIGS).map(([id, cfg]) => {
+                const stored = typeof window !== "undefined" ? localStorage.getItem(cfg.keyName) || "" : "";
+                return (
+                  <div key={id} className="flex gap-1 items-center">
+                    <span className="text-[8px] text-text-muted w-10 shrink-0">{id}</span>
+                    <input type="password" defaultValue={stored} placeholder={id === "claude" ? "sk-ant-..." : id === "gpt4" ? "sk-proj-..." : "key..."}
+                      className="bg-white/[0.04] border border-white/[0.06] rounded px-1.5 py-0.5 text-[9px] text-text-primary font-mono flex-1 focus:outline-none"
+                      onBlur={(e) => { if (e.target.value) localStorage.setItem(cfg.keyName, e.target.value); }} />
+                    {stored && <div className="w-1.5 h-1.5 rounded-full bg-success shrink-0" />}
+                  </div>
+                );
+              })}
+              <button onClick={() => { setShowKey(false); toast("success", "Keys Saved", "All API keys stored locally"); }}
+                className="w-full px-2 py-1 rounded bg-primary/15 text-[9px] font-bold text-primary mt-1">Done</button>
             </div>
           )}
         </div>
@@ -266,7 +346,7 @@ export default function ChatSection() {
           <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="max-w-3xl mx-auto flex items-center gap-3">
             <input
               type="text" value={input} onChange={(e) => setInput(e.target.value)}
-              placeholder={isLive ? "Message Friday..." : "Message Friday (simulated)..."}
+              placeholder={hasKey ? `Message Friday (${model})...` : "Message Friday (simulated)..."}
               className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-primary/20 w-full"
               disabled={isTyping}
             />
