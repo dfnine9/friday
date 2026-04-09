@@ -142,16 +142,14 @@ html {
   border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* Level 2: Cards — standard glassmorphism */
+/* Level 2: Cards — solid semi-transparent (NO backdrop-filter for perf) */
 .glass-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(16px) saturate(1.3);
-  -webkit-backdrop-filter: blur(16px) saturate(1.3);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(16, 18, 30, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 16px;
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 /* Level 3: Bar — light frost */
@@ -162,11 +160,9 @@ html {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Level 4: Inner panels — subtle */
+/* Level 4: Inner panels — subtle, no blur */
 .glass-inner {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(20, 22, 35, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 12px;
 }
@@ -195,26 +191,9 @@ html {
   box-shadow: 0 0 0 1px rgba(7, 202, 107, 0.2), 0 4px 24px rgba(7, 202, 107, 0.12);
 }
 
-/* ═══ LUMINOUS BORDER ═══ */
+/* ═══ LUMINOUS BORDER — lightweight version ═══ */
 .luminous-border {
-  position: relative;
-}
-.luminous-border::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.15) 0%,
-    rgba(255, 255, 255, 0.03) 40%,
-    rgba(255, 255, 255, 0.08) 100%
-  );
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
+  border-top-color: rgba(255, 255, 255, 0.12);
 }
 
 /* ═══ STATUS INDICATORS ═══ */
@@ -432,9 +411,8 @@ html {
   50% { transform: translateY(-6px); }
 }
 @keyframes blob-drift {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(30px, -20px) scale(1.05); }
-  66% { transform: translate(-20px, 15px) scale(0.95); }
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(20px, -15px); }
 }
 
 .animate-fade-in-up { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
