@@ -68,25 +68,30 @@ export default function TerminalSection() {
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
+    let interval: ReturnType<typeof setInterval> | null = null;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !bootDone) {
           let i = 0;
-          const interval = setInterval(() => {
+          interval = setInterval(() => {
             if (i < TERMINAL_LINES.length) {
               setLines((prev) => [...prev, TERMINAL_LINES[i]]);
               i++;
             } else {
-              clearInterval(interval);
+              if (interval) clearInterval(interval);
+              interval = null;
               setBootDone(true);
             }
-          }, 300);
+          }, 150);
         }
       },
       { threshold: 0.3 }
     );
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (interval) clearInterval(interval);
+    };
   }, [bootDone]);
 
   // Auto-scroll

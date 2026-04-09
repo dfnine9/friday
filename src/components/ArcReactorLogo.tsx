@@ -8,10 +8,10 @@ type ArcReactorLogoProps = {
 };
 
 const SIZES = {
-  sm: { container: 36, core: 8, rings: [14, 18], particles: 3, filaments: 0 },
-  md: { container: 56, core: 12, rings: [20, 28], particles: 4, filaments: 4 },
-  lg: { container: 80, core: 16, rings: [28, 38], particles: 6, filaments: 6 },
-  hero: { container: 160, core: 28, rings: [50, 70, 90], particles: 12, filaments: 10 },
+  sm: { container: 36, core: 8, rings: [14, 18], particles: 2, filaments: 0 },
+  md: { container: 56, core: 12, rings: [20, 28], particles: 3, filaments: 0 },
+  lg: { container: 80, core: 16, rings: [28, 38], particles: 4, filaments: 0 },
+  hero: { container: 160, core: 28, rings: [50, 70, 90], particles: 8, filaments: 6 },
 };
 
 export default function ArcReactorLogo({ size = "md", className }: ArcReactorLogoProps) {
@@ -56,7 +56,7 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
         {/* ═══ ROTATING RINGS ═══ */}
         {s.rings.map((r, i) => (
           <g key={i}>
-            {/* Ring track (faint) */}
+            {/* Ring track (faint, static) */}
             <circle
               cx={center}
               cy={center}
@@ -78,21 +78,6 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
               style={{
                 transformOrigin: `${center}px ${center}px`,
                 animation: `${i % 2 === 0 ? "reactor-spin" : "reactor-spin-reverse"} ${6 + i * 4}s linear infinite`,
-              }}
-            />
-            {/* Second arc for visual richness */}
-            <circle
-              cx={center}
-              cy={center}
-              r={r}
-              fill="none"
-              stroke="rgba(24,160,255,0.2)"
-              strokeWidth={0.8}
-              strokeLinecap="round"
-              strokeDasharray={`${Math.PI * r * 0.3} ${Math.PI * r * 1.7}`}
-              style={{
-                transformOrigin: `${center}px ${center}px`,
-                animation: `${i % 2 === 0 ? "reactor-spin-reverse" : "reactor-spin"} ${8 + i * 3}s linear infinite`,
               }}
             />
           </g>

@@ -42,9 +42,10 @@ export default function Navbar() {
       className={clsx(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         scrolled
-          ? "glass-sidebar py-3 shadow-lg shadow-black/20"
+          ? "py-3 shadow-lg shadow-black/20"
           : "py-4 bg-transparent"
       )}
+      style={scrolled ? { background: "rgba(8,8,15,0.92)", borderBottom: "1px solid rgba(255,255,255,0.06)" } : undefined}
     >
       <div className="max-w-[1600px] mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
