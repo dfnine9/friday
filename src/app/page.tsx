@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ToastProvider } from "@/components/ToastSystem";
 import { AgentModalProvider } from "@/components/AgentModal";
 import CommandPalette from "@/components/CommandPalette";
@@ -28,6 +28,13 @@ const TAB_COMPONENTS: Record<string, React.ComponentType> = {
 export default function FridayDashboard() {
   const [activeTab, setActiveTab] = useState("home");
   const ActiveTabComponent = TAB_COMPONENTS[activeTab] || HomeTab;
+
+  // Listen for tab switch events from Quick Launch buttons
+  useEffect(() => {
+    const handler = (e: Event) => setActiveTab((e as CustomEvent).detail);
+    window.addEventListener("switch-tab", handler);
+    return () => window.removeEventListener("switch-tab", handler);
+  }, []);
 
   return (
     <ToastProvider>
