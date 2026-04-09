@@ -283,8 +283,8 @@ export default function VoiceTab() {
         </div>
       )}
 
-      {/* Orb */}
-      <div className="flex-1 flex items-center justify-center w-full max-w-[480px]">
+      {/* Orb — fills entire background, transparent */}
+      <div className="absolute inset-0 flex items-center justify-center">
         <VoiceOrb state={orbState} analyser={analyser} className="w-full h-full" />
       </div>
 

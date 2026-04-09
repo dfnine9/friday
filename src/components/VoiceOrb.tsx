@@ -35,9 +35,9 @@ export default function VoiceOrb({ state, analyser, className }: VoiceOrbProps) 
     let destroyed = false;
     const N = 2000; // Same as Ethan's
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setClearColor(0x050508, 1);
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, 1, 1, 1000);
@@ -117,13 +117,12 @@ export default function VoiceOrb({ state, analyser, className }: VoiceOrbProps) 
     function onResize() {
       if (!canvas) return;
       const parent = canvas.parentElement;
-      const w = parent?.clientWidth || 500;
-      const h = parent?.clientHeight || 500;
-      const size = Math.min(w, h);
-      canvas.style.width = size + "px";
-      canvas.style.height = size + "px";
-      renderer.setSize(size, size);
-      camera.aspect = 1;
+      const w = parent?.clientWidth || 600;
+      const h = parent?.clientHeight || 600;
+      canvas.style.width = w + "px";
+      canvas.style.height = h + "px";
+      renderer.setSize(w, h);
+      camera.aspect = w / h;
       camera.updateProjectionMatrix();
     }
     onResize();

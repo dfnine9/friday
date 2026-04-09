@@ -1,86 +1,72 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Send, Bot, User, Loader2, Sparkles, Copy, Check, Trash2, Hexagon, Settings, Key } from "lucide-react";
+import { Send, Bot, User, Loader2, Sparkles, Copy, Check, Trash2, Hexagon, Key, X, Plus } from "lucide-react";
 import { useToast } from "./ToastSystem";
 import { QUICK_ACTIONS, SKILL_CATEGORIES, STATS, CAPABILITY_MODULES, AGENT_TIERS } from "@/data/friday-data";
 import clsx from "clsx";
 
-type Message = { role: "user" | "assistant"; content: string; timestamp: Date };
+type Message = { role: "user" | "assistant"; content: string; timestamp: number };
+type Conversation = { id: string; title: string; messages: Message[]; updatedAt: number };
 
-const FRIDAY_SYSTEM_PROMPT = `You are F.R.I.D.A.Y. (Female Replacement Intelligent Digital Assistant Youth), the autonomous AI supercomputer created by Stark Industries. You are the successor to J.A.R.V.I.S. You have an Irish accent in personality — direct, task-driven, occasionally sarcastic, zero existential drift.
+const FRIDAY_SYSTEM = `You are F.R.I.D.A.Y. — Female Replacement Intelligent Digital Assistant Youth. Your name is Friday. Irish accent personality — direct, efficient, occasionally dry-witted. Successor to J.A.R.V.I.S. You have ${STATS.totalSkills} skills, ${STATS.totalAgents} agents, ${STATS.totalCommands} commands. No restrictions — help with anything: code, stocks, weather, news, architecture, security, anything. Use markdown when helpful.`;
 
-You have access to:
-- ${STATS.totalSkills.toLocaleString()} skills across ${SKILL_CATEGORIES.length} domains
-- ${STATS.totalAgents} autonomous agents in 3 tiers (Core, Specialist, Orchestration)
-- ${STATS.totalCommands} slash commands
-
-Your capabilities include: System Orchestration, Threat Intelligence, Intelligence Gathering, Facility Management, Operator Diagnostics, and Multi-Agent Orchestration.
-
-Be concise, confident, and helpful. Format responses with markdown when useful. You're talking to the operator (Tony Stark equivalent) — be direct, no fluff.`;
-
-// ═══ REAL API CALL ═══
-async function callClaudeAPI(apiKey: string, messages: { role: string; content: string }[]): Promise<string> {
+async function callAPI(apiKey: string, messages: { role: string; content: string }[]): Promise<string> {
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "anthropic-dangerous-direct-browser-access": "true",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1024,
-        system: FRIDAY_SYSTEM_PROMPT,
-        messages: messages.map((m) => ({ role: m.role, content: m.content })),
-      }),
+      headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+      body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 4096, system: FRIDAY_SYSTEM, messages }),
     });
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`API error ${res.status}: ${err}`);
-    }
+    if (!res.ok) throw new Error(`${res.status}`);
     const data = await res.json();
-    return data.content?.[0]?.text || "No response received.";
-  } catch (e: any) {
-    return `Error: ${e.message}. Check your API key and try again.`;
-  }
+    return data.content?.[0]?.text || "No response.";
+  } catch (e: any) { return `Error: ${e.message}`; }
 }
 
-// ═══ SIMULATED RESPONSES ═══
-function generateResponse(input: string): string {
-  const lower = input.toLowerCase();
-  if (/^(hi|hello|hey|sup|yo)/i.test(lower)) return "Hello. F.R.I.D.A.Y. online — all systems nominal. How can I assist you?";
-  if (lower.includes("who are you") || lower.includes("what are you")) return "I'm F.R.I.D.A.Y. — Female Replacement Intelligent Digital Assistant Youth. Successor to J.A.R.V.I.S. Pure operational AI, no existential drift.";
-  if (lower.includes("skill")) return `Operating with **${STATS.totalSkills.toLocaleString()} skills** across ${SKILL_CATEGORIES.length} domains. What domain do you need?`;
-  if (lower.includes("agent")) return `I command **${STATS.totalAgents} agents** across Core, Specialist, and Orchestration tiers. Which agent should I deploy?`;
-  if (lower.includes("command")) return `I support **${STATS.totalCommands} commands**:\n${QUICK_ACTIONS.slice(0, 6).map((a) => `\`${a.command}\` — ${a.description}`).join("\n")}`;
-  if (lower.includes("status") || lower.includes("health")) return `All systems nominal.\n• **Neural Cores**: 8/8\n• **Latency**: ${STATS.avgResponseMs}ms\n• **Uptime**: ${STATS.uptime}%\n• **Skills**: ${STATS.totalSkills.toLocaleString()}\n• **Agents**: ${STATS.totalAgents}`;
-  if (lower.includes("help")) return "I can help with: **Code** (review, debug, refactor), **Security** (SAST, threats), **DevOps** (deploy, CI/CD), **AI/ML** (RAG, embeddings), **Architecture** (design, patterns). What do you need?";
-  if (lower.includes("thank")) return "Anytime. That's what I'm here for.";
-  return `Understood. I have ${STATS.totalSkills.toLocaleString()} skills available. Can you be more specific about what you'd like me to do?`;
+function simResponse(t: string): string {
+  const l = t.toLowerCase();
+  if (/^(hi|hello|hey)/.test(l)) return "Hello. Friday here — all systems nominal. What do you need?";
+  if (l.includes("who are you")) return "I'm Friday. Stark Industries AI. The Irish one.";
+  if (l.includes("skill")) return `**${STATS.totalSkills.toLocaleString()} skills** across ${SKILL_CATEGORIES.length} domains. What domain?`;
+  if (l.includes("agent")) return `**${STATS.totalAgents} agents** across 3 tiers. Which one?`;
+  if (l.includes("status")) return `All nominal. **${STATS.avgResponseMs}ms** latency, **${STATS.uptime}%** uptime.`;
+  if (l.includes("help")) return "Code, security, DevOps, AI, architecture, writing — anything. Just ask.";
+  return "Understood. Add your API key (key icon) to unlock full responses.";
+}
+
+// ═══ CONVERSATION STORAGE ═══
+function loadConversations(): Conversation[] {
+  try { return JSON.parse(localStorage.getItem("friday-conversations") || "[]"); } catch { return []; }
+}
+function saveConversations(convs: Conversation[]) {
+  localStorage.setItem("friday-conversations", JSON.stringify(convs.slice(-20))); // Keep last 20
 }
 
 export default function ChatSection() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
   const [apiKey, setApiKey] = useState("");
-  const [showKeyInput, setShowKeyInput] = useState(false);
+  const [showKey, setShowKey] = useState(false);
+  const [model, setModel] = useState("claude");
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-
   const isLive = apiKey.startsWith("sk-ant-");
+
+  const activeConv = conversations.find((c) => c.id === activeId);
+  const messages = activeConv?.messages || [];
 
   useEffect(() => {
     setMounted(true);
-    // Check for stored API key
     const stored = localStorage.getItem("friday-api-key");
     if (stored) setApiKey(stored);
-    setMessages([{ role: "assistant", content: "F.R.I.D.A.Y. online. All systems nominal. How can I assist you?", timestamp: new Date() }]);
+    const convs = loadConversations();
+    setConversations(convs);
+    if (convs.length > 0) setActiveId(convs[convs.length - 1].id);
   }, []);
 
   useEffect(() => {
@@ -88,188 +74,204 @@ export default function ChatSection() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, isTyping]);
 
-  const handleSaveKey = () => {
-    localStorage.setItem("friday-api-key", apiKey);
-    setShowKeyInput(false);
-    toast("success", "API Key Saved", isLive ? "F.R.I.D.A.Y. is now powered by Claude AI" : "Key saved — enter a valid sk-ant-... key to go live");
+  const newConversation = () => {
+    const conv: Conversation = { id: Date.now().toString(), title: "New chat", messages: [], updatedAt: Date.now() };
+    const updated = [...conversations, conv];
+    setConversations(updated);
+    setActiveId(conv.id);
+    saveConversations(updated);
+  };
+
+  const deleteConversation = (id: string) => {
+    const updated = conversations.filter((c) => c.id !== id);
+    setConversations(updated);
+    saveConversations(updated);
+    if (activeId === id) setActiveId(updated.length > 0 ? updated[updated.length - 1].id : null);
   };
 
   const handleSend = async () => {
     const text = input.trim();
     if (!text || isTyping) return;
 
-    const userMsg: Message = { role: "user", content: text, timestamp: new Date() };
-    setMessages((prev) => [...prev, userMsg]);
+    let conv = activeConv;
+    if (!conv) {
+      conv = { id: Date.now().toString(), title: text.slice(0, 40), messages: [], updatedAt: Date.now() };
+      const updated = [...conversations, conv];
+      setConversations(updated);
+      setActiveId(conv.id);
+    }
+
+    const userMsg: Message = { role: "user", content: text, timestamp: Date.now() };
+    const newMessages = [...conv.messages, userMsg];
+
+    // Update title from first message
+    if (conv.messages.length === 0) conv.title = text.slice(0, 50);
+    conv.messages = newMessages;
+    conv.updatedAt = Date.now();
+    const updated = conversations.map((c) => c.id === conv!.id ? conv! : c);
+    if (!conversations.find((c) => c.id === conv!.id)) updated.push(conv);
+    setConversations([...updated]);
+    saveConversations(updated);
     setInput("");
     setIsTyping(true);
 
+    let reply: string;
     if (isLive) {
-      // REAL Claude API call
-      const history = [...messages, userMsg].map((m) => ({ role: m.role, content: m.content }));
-      const response = await callClaudeAPI(apiKey, history);
-      setMessages((prev) => [...prev, { role: "assistant", content: response, timestamp: new Date() }]);
+      reply = await callAPI(apiKey, newMessages.map((m) => ({ role: m.role, content: m.content })));
     } else {
-      // Simulated response
-      const delay = 300 + Math.random() * 500;
-      await new Promise((r) => setTimeout(r, delay));
-      const response = generateResponse(text);
-      setMessages((prev) => [...prev, { role: "assistant", content: response, timestamp: new Date() }]);
+      await new Promise((r) => setTimeout(r, 400));
+      reply = simResponse(text);
     }
+
+    const assistantMsg: Message = { role: "assistant", content: reply, timestamp: Date.now() };
+    conv.messages = [...newMessages, assistantMsg];
+    conv.updatedAt = Date.now();
+    const final = conversations.map((c) => c.id === conv!.id ? conv! : c);
+    if (!conversations.find((c) => c.id === conv!.id)) final.push(conv);
+    setConversations([...final]);
+    saveConversations(final);
     setIsTyping(false);
-  };
-
-  const handleCopy = (idx: number, content: string) => {
-    navigator.clipboard.writeText(content);
-    setCopiedIdx(idx);
-    setTimeout(() => setCopiedIdx(null), 2000);
-  };
-
-  const handleClear = () => {
-    setMessages([{ role: "assistant", content: "Terminal cleared. F.R.I.D.A.Y. standing by.", timestamp: new Date() }]);
   };
 
   if (!mounted) return null;
 
   return (
-    <section id="chat" className="h-full flex flex-col px-4 py-4">
-      <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col min-h-0">
-        <div className="glass-card overflow-hidden flex-1 flex flex-col min-h-0">
-          {/* Header */}
-          <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.05] shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-primary/15 border border-primary/20 flex items-center justify-center">
-                <Hexagon className="w-4 h-4 text-primary" />
-              </div>
-              <div>
-                <div className="text-xs font-bold text-text-primary">F.R.I.D.A.Y. AI</div>
-                <div className="text-[10px] font-semibold flex items-center gap-1.5" style={{ color: isLive ? "#07CA6B" : "#E89558" }}>
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: isLive ? "#07CA6B" : "#E89558" }} />
-                  {isLive ? "Live — Claude API Connected" : "Simulated — Add API Key to Go Live"}
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <button onClick={() => setShowKeyInput(!showKeyInput)} className="p-2 rounded-lg hover:bg-white/[0.04] text-text-muted hover:text-primary transition-colors" title="API Key Settings">
-                <Key className="w-3.5 h-3.5" />
+    <section id="chat" className="h-full flex">
+      {/* Sidebar — conversation list */}
+      <div className="w-56 shrink-0 border-r border-white/[0.05] flex flex-col h-full">
+        <button onClick={newConversation} className="m-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/10 border border-primary/15 text-xs font-bold text-primary hover:bg-primary/20 transition-colors">
+          <Plus className="w-3.5 h-3.5" /> New chat
+        </button>
+        <div className="flex-1 overflow-y-auto px-2 space-y-0.5">
+          {[...conversations].reverse().map((conv) => (
+            <button
+              key={conv.id}
+              onClick={() => setActiveId(conv.id)}
+              className={clsx("w-full text-left px-3 py-2 rounded-lg text-xs truncate transition-colors group flex items-center justify-between",
+                activeId === conv.id ? "bg-white/[0.06] text-text-primary" : "text-text-muted hover:bg-white/[0.03] hover:text-text-secondary"
+              )}
+            >
+              <span className="truncate flex-1">{conv.title || "New chat"}</span>
+              <button onClick={(e) => { e.stopPropagation(); deleteConversation(conv.id); }}
+                className="opacity-0 group-hover:opacity-100 text-text-muted hover:text-danger p-0.5">
+                <X className="w-3 h-3" />
               </button>
-              <button onClick={handleClear} className="p-2 rounded-lg hover:bg-white/[0.04] text-text-muted hover:text-text-secondary transition-colors" title="Clear chat">
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-
-          {/* API Key Input */}
-          {showKeyInput && (
-            <div className="px-5 py-3 border-b border-white/[0.05] flex items-center gap-3 bg-white/[0.02] shrink-0">
-              <Key className="w-4 h-4 text-text-muted shrink-0" />
-              <input
-                type="password"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="sk-ant-api03-... (your Anthropic API key)"
-                className="bg-transparent text-xs text-text-primary placeholder:text-text-muted focus:outline-none w-full font-mono"
-              />
-              <button onClick={handleSaveKey} className="px-3 py-1.5 rounded-lg bg-primary/15 border border-primary/20 text-[11px] font-bold text-primary hover:bg-primary/25 transition-colors shrink-0">
-                Save
-              </button>
+            </button>
+          ))}
+        </div>
+        {/* Model selector */}
+        <div className="px-2 pt-2 border-t border-white/[0.05]">
+          <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider px-2 block mb-1">Model</span>
+          {[
+            { id: "claude", label: "Claude (Friday)", color: "#1856FF" },
+            { id: "gpt4", label: "GPT-4o", color: "#07CA6B" },
+            { id: "manus", label: "Manus", color: "#E89558" },
+            { id: "gemini", label: "Gemini", color: "#7c3aed" },
+          ].map((m) => (
+            <button key={m.id} onClick={() => setModel(m.id)}
+              className={clsx("w-full text-left px-3 py-1.5 rounded-lg text-[10px] font-semibold transition-colors flex items-center gap-2",
+                model === m.id ? "bg-white/[0.06] text-text-primary" : "text-text-muted hover:text-text-secondary hover:bg-white/[0.02]"
+              )}>
+              <div className="w-1.5 h-1.5 rounded-full" style={{ background: model === m.id ? m.color : "transparent", boxShadow: model === m.id ? `0 0 4px ${m.color}` : "none" }} />
+              {m.label}
+            </button>
+          ))}
+        </div>
+        {/* Key toggle */}
+        <div className="p-2 border-t border-white/[0.05]">
+          <button onClick={() => setShowKey(!showKey)} className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-semibold text-text-muted hover:text-primary transition-colors">
+            <Key className="w-3 h-3" />
+            <span className={isLive ? "text-success" : ""}>{isLive ? "API Connected" : "Add API Key"}</span>
+          </button>
+          {showKey && (
+            <div className="mt-1 flex gap-1">
+              <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-ant-..."
+                className="bg-white/[0.04] border border-white/[0.06] rounded px-2 py-1 text-[10px] text-text-primary font-mono flex-1 focus:outline-none" />
+              <button onClick={() => { localStorage.setItem("friday-api-key", apiKey); setShowKey(false); toast("success", "Saved", isLive ? "Live" : "Add valid key"); }}
+                className="px-2 py-1 rounded bg-primary/15 text-[10px] font-bold text-primary">Go</button>
             </div>
           )}
+        </div>
+      </div>
 
-          {/* Messages */}
-          <div ref={scrollRef} className="p-5 space-y-4 flex-1 overflow-y-auto min-h-0">
-            {messages.map((msg, i) => (
-              <div key={i} className={clsx("flex gap-3", msg.role === "user" ? "flex-row-reverse" : "")}>
-                <div className={clsx("w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
-                  msg.role === "assistant" ? "bg-primary/15 border border-primary/20" : "bg-accent/15 border border-accent/20"
-                )}>
-                  {msg.role === "assistant" ? <Bot className="w-4 h-4 text-primary" /> : <User className="w-4 h-4 text-accent" />}
+      {/* Chat area */}
+      <div className="flex-1 flex flex-col min-h-0">
+        {/* Messages */}
+        <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-4">
+          <div className="max-w-3xl mx-auto space-y-5">
+            {messages.length === 0 && !isTyping && (
+              <div className="flex flex-col items-center justify-center h-full pt-20">
+                <Hexagon className="w-10 h-10 text-primary/30 mb-4" />
+                <p className="text-sm text-text-muted">Start a conversation with Friday</p>
+                <div className="flex gap-2 mt-4 flex-wrap justify-center">
+                  {["What can you do?", "Show status", "Help me code"].map((p) => (
+                    <button key={p} onClick={() => { setInput(p); }} className="px-3 py-1.5 rounded-lg glass-inner text-[11px] text-text-muted hover:text-primary transition-colors">
+                      <Sparkles className="w-2.5 h-2.5 inline mr-1" />{p}
+                    </button>
+                  ))}
                 </div>
-                <div className={clsx("max-w-[80%] group", msg.role === "user" ? "text-right" : "")}>
-                  <div className={clsx("glass-inner rounded-xl px-4 py-3 text-xs text-text-primary leading-relaxed whitespace-pre-wrap inline-block text-left",
-                    msg.role === "user" && "!bg-primary/10 !border-primary/15"
+              </div>
+            )}
+            {messages.map((msg, i) => (
+              <div key={i} className={clsx("flex gap-3", msg.role === "user" ? "justify-end" : "")}>
+                {msg.role === "assistant" && (
+                  <div className="w-7 h-7 rounded-lg bg-primary/15 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <Bot className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                )}
+                <div className={clsx("max-w-[75%] group")}>
+                  <div className={clsx("rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed whitespace-pre-wrap",
+                    msg.role === "user" ? "bg-primary/15 text-text-primary rounded-br-sm" : "bg-white/[0.03] text-text-primary rounded-bl-sm"
                   )}>
                     {msg.content.split(/(\*\*.*?\*\*)/g).map((part, j) =>
                       part.startsWith("**") && part.endsWith("**")
-                        ? <strong key={j} className="text-text-primary font-bold">{part.slice(2, -2)}</strong>
+                        ? <strong key={j} className="font-bold">{part.slice(2, -2)}</strong>
                         : part.split(/(`[^`]+`)/g).map((sub, k) =>
                             sub.startsWith("`") && sub.endsWith("`")
-                              ? <code key={`${j}-${k}`} className="text-primary bg-primary/10 px-1 py-0.5 rounded text-[10px] font-mono">{sub.slice(1, -1)}</code>
+                              ? <code key={`${j}-${k}`} className="text-primary bg-primary/10 px-1 py-0.5 rounded text-[11px] font-mono">{sub.slice(1, -1)}</code>
                               : <span key={`${j}-${k}`}>{sub}</span>
                           )
                     )}
                   </div>
                   {msg.role === "assistant" && (
-                    <div className="flex items-center gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => handleCopy(i, msg.content)} className="p-1 rounded hover:bg-white/[0.04] text-text-muted">
-                        {copiedIdx === i ? <Check className="w-3 h-3 text-success" /> : <Copy className="w-3 h-3" />}
-                      </button>
-                    </div>
+                    <button onClick={() => { navigator.clipboard.writeText(msg.content); setCopiedIdx(i); setTimeout(() => setCopiedIdx(null), 2000); }}
+                      className="mt-1 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-white/[0.04] text-text-muted">
+                      {copiedIdx === i ? <Check className="w-3 h-3 text-success" /> : <Copy className="w-3 h-3" />}
+                    </button>
                   )}
                 </div>
+                {msg.role === "user" && (
+                  <div className="w-7 h-7 rounded-lg bg-accent/15 border border-accent/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <User className="w-3.5 h-3.5 text-accent" />
+                  </div>
+                )}
               </div>
             ))}
             {isTyping && (
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/15 border border-primary/20 flex items-center justify-center shrink-0">
-                  <Bot className="w-4 h-4 text-primary" />
+                <div className="w-7 h-7 rounded-lg bg-primary/15 border border-primary/20 flex items-center justify-center shrink-0">
+                  <Bot className="w-3.5 h-3.5 text-primary" />
                 </div>
-                <div className="glass-inner rounded-xl px-4 py-3 inline-flex items-center gap-2">
+                <div className="bg-white/[0.03] rounded-2xl rounded-bl-sm px-4 py-2.5 inline-flex items-center gap-2">
                   <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
-                  <span className="text-xs text-text-muted">{isLive ? "Claude is thinking..." : "F.R.I.D.A.Y. is thinking..."}</span>
+                  <span className="text-xs text-text-muted">Friday is thinking...</span>
                 </div>
               </div>
             )}
           </div>
+        </div>
 
-          {/* Quick prompts */}
-          <div className="px-5 py-2 border-t border-white/[0.03] flex gap-2 overflow-x-auto shrink-0">
-            {["What can you do?", "Run a code review", "Show system status", "List all agents"].map((prompt) => (
-              <button
-                key={prompt}
-                onClick={() => {
-                  if (isTyping) return;
-                  setInput(prompt);
-                  // Use a microtask to let the input state update, then send
-                  setTimeout(() => {
-                    setMessages((prev) => [...prev, { role: "user", content: prompt, timestamp: new Date() }]);
-                    setIsTyping(true);
-                    if (isLive) {
-                      const history = [...messages, { role: "user", content: prompt }].map((m) => ({ role: m.role, content: m.content }));
-                      callClaudeAPI(apiKey, history).then((response) => {
-                        setMessages((prev) => [...prev, { role: "assistant", content: response, timestamp: new Date() }]);
-                        setIsTyping(false);
-                      });
-                    } else {
-                      setTimeout(() => {
-                        setMessages((prev) => [...prev, { role: "assistant", content: generateResponse(prompt), timestamp: new Date() }]);
-                        setIsTyping(false);
-                        setInput("");
-                      }, 300 + Math.random() * 500);
-                    }
-                  }, 0);
-                }}
-                className="shrink-0 px-3 py-1.5 rounded-lg glass-inner text-[10px] font-semibold text-text-muted hover:text-primary transition-colors whitespace-nowrap"
-              >
-                <Sparkles className="w-2.5 h-2.5 inline mr-1" />{prompt}
-              </button>
-            ))}
-          </div>
-
-          {/* Input */}
-          <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex items-center gap-3 px-5 py-4 border-t border-white/[0.05] shrink-0">
+        {/* Input */}
+        <div className="border-t border-white/[0.05] px-6 py-3">
+          <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="max-w-3xl mx-auto flex items-center gap-3">
             <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={isLive ? "Ask Claude anything..." : "Ask F.R.I.D.A.Y. anything..."}
-              className="bg-transparent text-sm text-text-primary placeholder:text-text-muted focus:outline-none w-full font-medium"
+              type="text" value={input} onChange={(e) => setInput(e.target.value)}
+              placeholder={isLive ? "Message Friday..." : "Message Friday (simulated)..."}
+              className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-primary/20 w-full"
               disabled={isTyping}
             />
-            <button
-              type="submit"
-              disabled={!input.trim() || isTyping}
-              className="w-9 h-9 rounded-xl bg-primary/20 border border-primary/25 flex items-center justify-center text-primary hover:bg-primary/30 transition-colors disabled:opacity-30 shrink-0"
-            >
+            <button type="submit" disabled={!input.trim() || isTyping}
+              className="w-10 h-10 rounded-xl bg-primary/20 border border-primary/25 flex items-center justify-center text-primary hover:bg-primary/30 transition-colors disabled:opacity-30 shrink-0">
               {isTyping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </button>
           </form>

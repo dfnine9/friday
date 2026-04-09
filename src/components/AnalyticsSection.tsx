@@ -41,14 +41,34 @@ function Dot({ label, color }: { label: string; color: string }) {
 
 export default function AnalyticsSection() {
   const [mounted, setMounted] = useState(false);
+  const [liveData, setLiveData] = useState(USAGE_DATA);
+  const [tick, setTick] = useState(0);
+
   useEffect(() => setMounted(true), []);
+
+  // Live update every 3 seconds — simulate real-time telemetry
+  useEffect(() => {
+    if (!mounted) return;
+    const interval = setInterval(() => {
+      setLiveData((prev) =>
+        prev.map((d) => ({
+          ...d,
+          skills: Math.max(10, d.skills + Math.floor((Math.random() - 0.45) * 20)),
+          agents: Math.max(5, d.agents + Math.floor((Math.random() - 0.45) * 8)),
+          commands: Math.max(3, d.commands + Math.floor((Math.random() - 0.45) * 6)),
+        }))
+      );
+      setTick((t) => t + 1);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [mounted]);
 
   return (
     <section id="analytics" className="section">
       <div className="section-inner">
         <div className="section-header">
-          <h2>Analytics</h2>
-          <p>Usage patterns, growth trajectories, and domain distribution across the platform</p>
+          <h2>Analytics <span className="inline-block w-2 h-2 rounded-full bg-success ml-2 animate-pulse" title="Live" /></h2>
+          <p>Real-time telemetry — updates every 3 seconds</p>
         </div>
         {mounted && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -62,7 +82,7 @@ export default function AnalyticsSection() {
               </div>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={USAGE_DATA}>
+                  <AreaChart data={liveData}>
                     <defs>
                       <linearGradient id="gs2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#1856FF" stopOpacity={0.4} /><stop offset="100%" stopColor="#1856FF" stopOpacity={0.02} /></linearGradient>
                       <linearGradient id="ga2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#7c3aed" stopOpacity={0.3} /><stop offset="100%" stopColor="#7c3aed" stopOpacity={0.02} /></linearGradient>
