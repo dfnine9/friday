@@ -41,11 +41,11 @@ export default function FridayDashboard() {
       <AgentModalProvider>
         <div className="relative dot-grid cosmic-bg h-screen overflow-hidden" suppressHydrationWarning>
           {/* Flickering stars */}
-          {Array.from({ length: 18 }).map((_, i) => (
+          {Array.from({ length: 50 }).map((_, i) => (
             <div key={`star-${i}`} className="star" />
           ))}
           {/* Shooting stars */}
-          {Array.from({ length: 4 }).map((_, i) => (
+          {Array.from({ length: 10 }).map((_, i) => (
             <div key={`shoot-${i}`} className="shooting-star" />
           ))}
 
