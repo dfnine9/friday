@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 
 export default function OverviewTab() {
   return (
-    <div className="overflow-y-auto h-[calc(100vh-64px)]">
+    <div className="overflow-y-auto h-[calc(100vh-92px)]">
       <HeroSection />
       <MetricsSection />
       <CapabilitiesSection />

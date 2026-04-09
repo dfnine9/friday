@@ -7,7 +7,7 @@ import IntegrationsSection from "@/components/IntegrationsSection";
 
 export default function AgentsTab() {
   return (
-    <div className="overflow-y-auto h-[calc(100vh-64px)]">
+    <div className="overflow-y-auto h-[calc(100vh-92px)]">
       <SkillsSection />
       <AgentsSection />
       <ServicesSection />

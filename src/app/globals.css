@@ -110,32 +110,63 @@ html {
    DOT GRID BACKGROUND
    The foundation — subtle dot pattern over dark
    ═══════════════════════════════════════════ */
+/* ═══ COSMIC NEBULA BACKGROUND ═══ */
 .dot-grid {
-  background-color: #050508;
+  background: #060612;
   background-image:
-    radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    radial-gradient(ellipse at 20% 50%, rgba(24, 86, 255, 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(124, 58, 237, 0.02) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(6, 182, 212, 0.02) 0%, transparent 50%);
-  background-size: 24px 24px, 100% 100%, 100% 100%, 100% 100%;
+    /* Stars — tiny white dots */
+    radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 65%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 15%, rgba(255,255,255,0.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 45%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 75%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 20% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 45% 40%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 10%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 15% 50%, rgba(255,255,255,0.8) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 60% 85%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 75% 25%, rgba(255,255,255,0.7) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 40% 95%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    /* Nebula clouds */
+    radial-gradient(ellipse at 25% 50%, rgba(24, 100, 255, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 75% 30%, rgba(160, 50, 255, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 70%, rgba(200, 40, 200, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 15% 80%, rgba(60, 60, 220, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 60%, rgba(180, 30, 255, 0.1) 0%, transparent 50%);
 }
 
-/* Cosmic animated background layer */
-@keyframes cosmic-drift {
-  0% { background-position: 0% 0%, 0% 50%, 100% 0%, 50% 100%; }
-  50% { background-position: 0% 0%, 30% 30%, 70% 30%, 30% 70%; }
-  100% { background-position: 0% 0%, 0% 50%, 100% 0%, 50% 100%; }
+/* Animated nebula overlay */
+@keyframes nebula-drift {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+@keyframes nebula-shift {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(10px, -8px) scale(1.02); }
+  66% { transform: translate(-8px, 5px) scale(0.98); }
+  100% { transform: translate(0, 0) scale(1); }
 }
 .cosmic-bg::before {
   content: '';
   position: fixed;
-  inset: 0;
+  inset: -20px;
   background:
-    radial-gradient(ellipse at 15% 50%, rgba(24, 86, 255, 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 20%, rgba(124, 58, 237, 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 85%, rgba(6, 182, 212, 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 60%, rgba(245, 166, 35, 0.015) 0%, transparent 40%);
-  animation: cosmic-drift 30s ease-in-out infinite;
+    radial-gradient(ellipse at 20% 40%, rgba(30, 80, 255, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 30%, rgba(150, 40, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(200, 50, 200, 0.08) 0%, transparent 45%),
+    radial-gradient(ellipse at 10% 70%, rgba(40, 60, 200, 0.06) 0%, transparent 40%);
+  animation: nebula-shift 40s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+.cosmic-bg::after {
+  content: '';
+  position: fixed;
+  inset: -20px;
+  background:
+    radial-gradient(ellipse at 70% 60%, rgba(180, 30, 255, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 30% 20%, rgba(60, 100, 255, 0.06) 0%, transparent 45%);
+  animation: nebula-shift 55s ease-in-out infinite reverse;
   pointer-events: none;
   z-index: 0;
 }

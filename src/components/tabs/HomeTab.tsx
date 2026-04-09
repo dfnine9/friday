@@ -283,8 +283,8 @@ function QuickActions({ onNavigate }: { onNavigate?: (tab: string) => void }) {
 
 export default function HomeTab() {
   return (
-    <div className="h-[calc(100vh-64px)] overflow-y-auto px-4 py-4">
-      <div className="max-w-7xl mx-auto">
+    <div className="h-[calc(100vh-92px)] overflow-y-auto px-3 py-3">
+      <div className="max-w-[1800px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Left — stocks + news (main content) */}
           <div className="lg:col-span-8 space-y-4">

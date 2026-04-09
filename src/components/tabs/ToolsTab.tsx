@@ -6,7 +6,7 @@ import DownloadSection from "@/components/DownloadSection";
 
 export default function ToolsTab() {
   return (
-    <div className="overflow-y-auto h-[calc(100vh-64px)]">
+    <div className="overflow-y-auto h-[calc(100vh-92px)]">
       <ActionsSection />
       <TerminalSection />
       <DownloadSection />

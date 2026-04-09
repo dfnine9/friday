@@ -6,7 +6,7 @@ import TimelineSection from "@/components/TimelineSection";
 
 export default function AnalyticsTab() {
   return (
-    <div className="overflow-y-auto h-[calc(100vh-64px)]">
+    <div className="overflow-y-auto h-[calc(100vh-92px)]">
       <AnalyticsSection />
       <StatusSection />
       <TimelineSection />
