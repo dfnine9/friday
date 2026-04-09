@@ -111,9 +111,33 @@ html {
    The foundation — subtle dot pattern over dark
    ═══════════════════════════════════════════ */
 .dot-grid {
-  background-color: #08080f;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-color: #050508;
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    radial-gradient(ellipse at 20% 50%, rgba(24, 86, 255, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(124, 58, 237, 0.02) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(6, 182, 212, 0.02) 0%, transparent 50%);
+  background-size: 24px 24px, 100% 100%, 100% 100%, 100% 100%;
+}
+
+/* Cosmic animated background layer */
+@keyframes cosmic-drift {
+  0% { background-position: 0% 0%, 0% 50%, 100% 0%, 50% 100%; }
+  50% { background-position: 0% 0%, 30% 30%, 70% 30%, 30% 70%; }
+  100% { background-position: 0% 0%, 0% 50%, 100% 0%, 50% 100%; }
+}
+.cosmic-bg::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 50%, rgba(24, 86, 255, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 20%, rgba(124, 58, 237, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 85%, rgba(6, 182, 212, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 60%, rgba(245, 166, 35, 0.015) 0%, transparent 40%);
+  animation: cosmic-drift 30s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* ═══════════════════════════════════════════

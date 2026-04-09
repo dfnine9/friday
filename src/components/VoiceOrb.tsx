@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import * as THREE from "three";
 
 export type OrbState = "idle" | "listening" | "thinking" | "speaking";
 
@@ -11,225 +10,207 @@ interface VoiceOrbProps {
   className?: string;
 }
 
+/**
+ * HUD Concentric Ring System — Iron Man style.
+ * Pure Canvas2D — no Three.js, no WebGL, no GPU pressure.
+ * Multiple rotating ring layers with arcs, dots, and dashes.
+ * Expands like neurons firing when speaking.
+ */
 export default function VoiceOrb({ state, analyser, className }: VoiceOrbProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const orbRef = useRef<{
-    destroy: () => void;
-    setState: (s: OrbState) => void;
-    setAnalyser: (a: AnalyserNode | null) => void;
-  } | null>(null);
+  const stateRef = useRef<OrbState>("idle");
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const destroyedRef = useRef(false);
+
+  useEffect(() => { stateRef.current = state; }, [state]);
+  useEffect(() => { analyserRef.current = analyser; }, [analyser]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || orbRef.current) return;
+    if (!canvas) return;
+    destroyedRef.current = false;
 
-    const N = 500;
-    let destroyed = false;
+    const ctx = canvas.getContext("2d")!;
+    let animId: number;
+    const freqData = new Uint8Array(64);
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x000000, 0);
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, 1, 1, 1000);
-    camera.position.z = 80;
-
-    // ═══ PARTICLES on a torus/Möbius topology ═══
-    const geo = new THREE.BufferGeometry();
-    const pos = new Float32Array(N * 3);
-    const basePos = new Float32Array(N * 3); // Store original torus positions
-    const phase = new Float32Array(N);
-    const vel = new Float32Array(N * 3);
-
-    // Distribute particles on a torus (Möbius-like shape)
-    const R = 20; // Major radius
-    const r = 8;  // Minor radius
-    for (let i = 0; i < N; i++) {
-      const u = Math.random() * Math.PI * 2;
-      const v = Math.random() * Math.PI * 2;
-      // Add randomness to make it organic
-      const jitter = 1 + (Math.random() - 0.5) * 0.6;
-      const rr = r * jitter;
-      pos[i * 3] = (R + rr * Math.cos(v)) * Math.cos(u);
-      pos[i * 3 + 1] = (R + rr * Math.cos(v)) * Math.sin(u);
-      pos[i * 3 + 2] = rr * Math.sin(v);
-      basePos[i * 3] = pos[i * 3];
-      basePos[i * 3 + 1] = pos[i * 3 + 1];
-      basePos[i * 3 + 2] = pos[i * 3 + 2];
-      phase[i] = Math.random() * 1000;
+    // Ring definitions — each ring has its own behavior
+    interface Ring {
+      baseRadius: number;
+      width: number;
+      speed: number;        // rotation speed (rad/frame)
+      dashPattern: number[];// [dash, gap] or [] for dots
+      dots: number;         // number of dots on this ring (0 = arc mode)
+      arcLength: number;    // 0-1, fraction of circle for arc segments
+      arcCount: number;     // number of arc segments
+      opacity: number;
+      expandFactor: number; // how much this ring expands when speaking
     }
-    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
 
-    const mat = new THREE.PointsMaterial({
-      color: 0x18a0ff, size: 0.55, transparent: true, opacity: 0.7,
-      sizeAttenuation: true, blending: THREE.AdditiveBlending, depthWrite: false,
-    });
-    const points = new THREE.Points(geo, mat);
-    scene.add(points);
+    const rings: Ring[] = [
+      // Inner core rings — tight, fast
+      { baseRadius: 25, width: 1.5, speed: 0.015, dashPattern: [], dots: 0, arcLength: 1, arcCount: 1, opacity: 0.9, expandFactor: 0.3 },
+      { baseRadius: 32, width: 1, speed: -0.01, dashPattern: [4, 4], dots: 0, arcLength: 1, arcCount: 1, opacity: 0.6, expandFactor: 0.4 },
+      { baseRadius: 40, width: 0.8, speed: 0.008, dashPattern: [], dots: 16, arcLength: 0, arcCount: 0, opacity: 0.5, expandFactor: 0.5 },
+      // Mid rings — medium speed, arc segments
+      { baseRadius: 55, width: 1.5, speed: -0.006, dashPattern: [], dots: 0, arcLength: 0.3, arcCount: 3, opacity: 0.7, expandFactor: 0.8 },
+      { baseRadius: 65, width: 0.8, speed: 0.009, dashPattern: [2, 6], dots: 0, arcLength: 1, arcCount: 1, opacity: 0.35, expandFactor: 0.9 },
+      { baseRadius: 72, width: 1, speed: -0.004, dashPattern: [], dots: 24, arcLength: 0, arcCount: 0, opacity: 0.4, expandFactor: 1.0 },
+      { baseRadius: 80, width: 1.5, speed: 0.007, dashPattern: [], dots: 0, arcLength: 0.25, arcCount: 4, opacity: 0.6, expandFactor: 1.1 },
+      // Outer rings — slow, subtle
+      { baseRadius: 95, width: 0.5, speed: -0.003, dashPattern: [1, 8], dots: 0, arcLength: 1, arcCount: 1, opacity: 0.2, expandFactor: 1.3 },
+      { baseRadius: 105, width: 0.8, speed: 0.005, dashPattern: [], dots: 32, arcLength: 0, arcCount: 0, opacity: 0.25, expandFactor: 1.4 },
+      { baseRadius: 115, width: 1.2, speed: -0.004, dashPattern: [], dots: 0, arcLength: 0.2, arcCount: 5, opacity: 0.5, expandFactor: 1.5 },
+      { baseRadius: 125, width: 0.5, speed: 0.002, dashPattern: [3, 5], dots: 0, arcLength: 1, arcCount: 1, opacity: 0.15, expandFactor: 1.6 },
+      // Outermost — whisper rings, only visible when speaking
+      { baseRadius: 140, width: 0.8, speed: -0.006, dashPattern: [], dots: 0, arcLength: 0.15, arcCount: 6, opacity: 0.4, expandFactor: 2.0 },
+      { baseRadius: 155, width: 0.5, speed: 0.003, dashPattern: [], dots: 40, arcLength: 0, arcCount: 0, opacity: 0.2, expandFactor: 2.2 },
+    ];
 
-    // Connection lines
-    const MAX_LINES = 2000;
-    const linePos = new Float32Array(MAX_LINES * 6);
-    const lineGeo = new THREE.BufferGeometry();
-    lineGeo.setAttribute("position", new THREE.BufferAttribute(linePos, 3));
-    lineGeo.setDrawRange(0, 0);
-    const lineMat = new THREE.LineBasicMaterial({
-      color: 0x18a0ff, transparent: true, opacity: 0.0,
-      blending: THREE.AdditiveBlending, depthWrite: false,
-    });
-    const lines = new THREE.LineSegments(lineGeo, lineMat);
-    scene.add(lines);
-
-    // State
-    let currentState: OrbState = "idle";
-    let currentAnalyser: AnalyserNode | null = null;
-    let targetBright = 0.6, currentBright = 0.6;
-    let lineAmount = 0, targetLineAmount = 0;
-    let breathScale = 1, targetBreathScale = 1;
-    let freqData = new Uint8Array(64);
-    let bass = 0;
-    const clock = new THREE.Clock();
-
-    // Möbius rotation axes
-    let rotX = 0, rotY = 0, rotZ = 0;
-    let rotSpeedX = 0.003, rotSpeedY = 0.005, rotSpeedZ = 0.002;
+    const rotations = rings.map(() => Math.random() * Math.PI * 2);
+    let coreGlow = 0.5;
+    let expandAmount = 0; // 0 = idle, 1 = fully expanded (speaking)
+    let breathPhase = 0;
 
     function resize() {
       if (!canvas) return;
       const parent = canvas.parentElement;
-      const size = Math.min(parent?.clientWidth || 400, parent?.clientHeight || 400, 480);
+      const size = Math.min(parent?.clientWidth || 400, parent?.clientHeight || 400, 500);
+      canvas.width = size * 2; // 2x for retina
+      canvas.height = size * 2;
       canvas.style.width = size + "px";
       canvas.style.height = size + "px";
-      renderer.setSize(size, size);
-      camera.aspect = 1;
-      camera.updateProjectionMatrix();
     }
     resize();
     window.addEventListener("resize", resize);
 
     function animate() {
-      if (destroyed) return;
-      requestAnimationFrame(animate);
-      const t = clock.getElapsedTime();
+      if (destroyedRef.current) return;
+      animId = requestAnimationFrame(animate);
 
-      // State-driven parameters
-      switch (currentState) {
-        case "idle":
-          targetBright = 0.5; targetLineAmount = 0.08; targetBreathScale = 1.0;
-          rotSpeedX = 0.003; rotSpeedY = 0.005; rotSpeedZ = 0.002;
-          break;
-        case "listening":
-          targetBright = 0.7; targetLineAmount = 0.3; targetBreathScale = 0.85;
-          rotSpeedX = 0.005; rotSpeedY = 0.008; rotSpeedZ = 0.003;
-          break;
-        case "thinking":
-          targetBright = 0.8; targetLineAmount = 0.8; targetBreathScale = 0.7;
-          rotSpeedX = 0.01; rotSpeedY = 0.015; rotSpeedZ = 0.008;
-          break;
-        case "speaking":
-          targetBright = 0.75; targetLineAmount = 0.5; targetBreathScale = 1.0;
-          rotSpeedX = 0.004; rotSpeedY = 0.006; rotSpeedZ = 0.003;
-          break;
+      const w = canvas!.width;
+      const h = canvas!.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const scale = w / 500; // Scale factor for different sizes
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Audio
+      let bass = 0;
+      if (analyserRef.current) {
+        analyserRef.current.getByteFrequencyData(freqData);
+        let sum = 0;
+        for (let i = 0; i < 8; i++) sum += freqData[i];
+        bass = sum / (8 * 255);
       }
 
-      currentBright += (targetBright - currentBright) * 0.03;
-      lineAmount += (targetLineAmount - lineAmount) * 0.03;
-      breathScale += (targetBreathScale - breathScale) * 0.02;
+      // State-driven targets
+      let targetExpand = 0;
+      let targetGlow = 0.5;
+      let speedMult = 1;
+      const st = stateRef.current;
 
-      // Audio analysis
-      bass = 0;
-      if (currentAnalyser) {
-        currentAnalyser.getByteFrequencyData(freqData);
-        let bSum = 0;
-        for (let i = 0; i < 8; i++) bSum += freqData[i];
-        bass = bSum / (8 * 255);
+      switch (st) {
+        case "idle": targetExpand = 0; targetGlow = 0.4; speedMult = 1; break;
+        case "listening": targetExpand = 0.15; targetGlow = 0.6; speedMult = 1.5; break;
+        case "thinking": targetExpand = 0.3; targetGlow = 0.8; speedMult = 3; break;
+        case "speaking": targetExpand = 0.2 + bass * 0.8; targetGlow = 0.6 + bass * 0.4; speedMult = 1.2 + bass * 2; break;
       }
 
-      // Möbius rotation — triple-axis gives the infinity/strip feel
-      rotX += rotSpeedX;
-      rotY += rotSpeedY;
-      rotZ += rotSpeedZ;
-      points.rotation.set(rotX, rotY, rotZ);
-      lines.rotation.set(rotX, rotY, rotZ);
+      expandAmount += (targetExpand - expandAmount) * 0.06;
+      coreGlow += (targetGlow - coreGlow) * 0.05;
+      breathPhase += 0.02;
+      const breath = Math.sin(breathPhase) * 0.02;
 
-      // Update particles — breathing + audio reactivity
-      const p = geo.getAttribute("position") as THREE.BufferAttribute;
-      const a = p.array as Float32Array;
-      const audioExpand = currentState === "speaking" ? 1 + bass * 0.4 : 1;
-      const breathMod = breathScale + Math.sin(t * 0.8) * 0.03;
-      const scale = breathMod * audioExpand;
+      // ═══ CORE GLOW ═══
+      const coreR = 18 * scale;
+      const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 2.5);
+      gradient.addColorStop(0, `rgba(255, 255, 255, ${coreGlow * 0.9})`);
+      gradient.addColorStop(0.3, `rgba(24, 160, 255, ${coreGlow * 0.5})`);
+      gradient.addColorStop(0.6, `rgba(24, 86, 255, ${coreGlow * 0.2})`);
+      gradient.addColorStop(1, "rgba(24, 86, 255, 0)");
+      ctx.beginPath();
+      ctx.arc(cx, cy, coreR * 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = gradient;
+      ctx.fill();
 
-      for (let i = 0; i < N; i++) {
-        const i3 = i * 3;
-        const px = phase[i];
+      // Inner bright core
+      ctx.beginPath();
+      ctx.arc(cx, cy, coreR * 0.4 * scale, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${coreGlow})`;
+      ctx.fill();
 
-        // Organic drift
-        vel[i3] += Math.sin(t * 0.04 + px) * 0.0005;
-        vel[i3 + 1] += Math.cos(t * 0.05 + px * 1.3) * 0.0005;
-        vel[i3 + 2] += Math.sin(t * 0.045 + px * 0.7) * 0.0005;
+      ctx.beginPath();
+      ctx.arc(cx, cy, coreR * 0.7 * scale, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(24, 160, 255, ${coreGlow * 0.8})`;
+      ctx.lineWidth = 1.5 * scale;
+      ctx.stroke();
 
-        // Pull back to torus shape
-        const tx = basePos[i3] * scale;
-        const ty = basePos[i3 + 1] * scale;
-        const tz = basePos[i3 + 2] * scale;
-        vel[i3] += (tx - a[i3]) * 0.008;
-        vel[i3 + 1] += (ty - a[i3 + 1]) * 0.008;
-        vel[i3 + 2] += (tz - a[i3 + 2]) * 0.008;
+      // ═══ RINGS ═══
+      for (let ri = 0; ri < rings.length; ri++) {
+        const ring = rings[ri];
+        rotations[ri] += ring.speed * speedMult;
 
-        // Damping
-        vel[i3] *= 0.96; vel[i3 + 1] *= 0.96; vel[i3 + 2] *= 0.96;
+        const expand = 1 + expandAmount * ring.expandFactor + breath;
+        const radius = ring.baseRadius * scale * expand;
+        const alpha = ring.opacity * (0.7 + expandAmount * 0.3);
 
-        // Speaking: add extra turbulence from audio
-        if (currentState === "speaking" && bass > 0.1) {
-          vel[i3] += (Math.random() - 0.5) * bass * 0.3;
-          vel[i3 + 1] += (Math.random() - 0.5) * bass * 0.3;
-          vel[i3 + 2] += (Math.random() - 0.5) * bass * 0.3;
-        }
+        // Skip outermost rings when idle (they're invisible anyway)
+        if (ri >= 11 && expandAmount < 0.1) continue;
 
-        a[i3] += vel[i3];
-        a[i3 + 1] += vel[i3 + 1];
-        a[i3 + 2] += vel[i3 + 2];
-      }
-      p.needsUpdate = true;
-      mat.opacity = currentBright;
-      mat.size = 0.5 + (currentState === "speaking" ? bass * 0.4 : 0);
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(rotations[ri]);
 
-      // Connection lines
-      const lineDist = 36;
-      let lc = 0;
-      const maxDraw = Math.floor(lineAmount * MAX_LINES);
-      if (maxDraw > 0) {
-        const la = (lineGeo.getAttribute("position") as THREE.BufferAttribute).array as Float32Array;
-        for (let i = 0; i < N && lc < maxDraw; i += 2) {
-          for (let j = i + 2; j < N && lc < maxDraw; j += 2) {
-            const dx = a[i * 3] - a[j * 3], dy = a[i * 3 + 1] - a[j * 3 + 1], dz = a[i * 3 + 2] - a[j * 3 + 2];
-            if (dx * dx + dy * dy + dz * dz < lineDist) {
-              la[lc * 6] = a[i * 3]; la[lc * 6 + 1] = a[i * 3 + 1]; la[lc * 6 + 2] = a[i * 3 + 2];
-              la[lc * 6 + 3] = a[j * 3]; la[lc * 6 + 4] = a[j * 3 + 1]; la[lc * 6 + 5] = a[j * 3 + 2];
-              lc++;
-            }
+        ctx.strokeStyle = `rgba(24, 160, 255, ${alpha})`;
+        ctx.fillStyle = `rgba(24, 160, 255, ${alpha})`;
+        ctx.lineWidth = ring.width * scale;
+
+        if (ring.dots > 0) {
+          // Dot ring
+          for (let d = 0; d < ring.dots; d++) {
+            const angle = (d / ring.dots) * Math.PI * 2;
+            const dx = Math.cos(angle) * radius;
+            const dy = Math.sin(angle) * radius;
+            const dotSize = (1 + bass * 1.5) * scale;
+            ctx.beginPath();
+            ctx.arc(dx, dy, dotSize, 0, Math.PI * 2);
+            ctx.fill();
           }
+        } else if (ring.arcCount > 1) {
+          // Multi-arc segments
+          for (let a = 0; a < ring.arcCount; a++) {
+            const startAngle = (a / ring.arcCount) * Math.PI * 2;
+            const endAngle = startAngle + ring.arcLength * Math.PI * 2;
+            if (ring.dashPattern.length > 0) ctx.setLineDash(ring.dashPattern.map((d) => d * scale));
+            else ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.arc(0, 0, radius, startAngle, endAngle);
+            ctx.stroke();
+          }
+        } else {
+          // Full ring (solid or dashed)
+          if (ring.dashPattern.length > 0) ctx.setLineDash(ring.dashPattern.map((d) => d * scale));
+          else ctx.setLineDash([]);
+          ctx.beginPath();
+          ctx.arc(0, 0, radius, 0, Math.PI * 2);
+          ctx.stroke();
         }
-        (lineGeo.getAttribute("position") as THREE.BufferAttribute).needsUpdate = true;
-      }
-      lineGeo.setDrawRange(0, lc * 2);
-      lineMat.opacity = lineAmount * 0.12;
 
-      renderer.render(scene, camera);
+        ctx.setLineDash([]);
+        ctx.restore();
+      }
     }
+
     animate();
 
-    orbRef.current = {
-      destroy() { destroyed = true; renderer.dispose(); window.removeEventListener("resize", resize); },
-      setState(s: OrbState) { currentState = s; },
-      setAnalyser(a: AnalyserNode | null) { currentAnalyser = a; freqData = new Uint8Array(a?.frequencyBinCount || 64); },
+    return () => {
+      destroyedRef.current = true;
+      cancelAnimationFrame(animId);
+      window.removeEventListener("resize", resize);
     };
-
-    return () => { orbRef.current?.destroy(); orbRef.current = null; };
   }, []);
-
-  useEffect(() => { orbRef.current?.setState(state); }, [state]);
-  useEffect(() => { orbRef.current?.setAnalyser(analyser); }, [analyser]);
 
   return <canvas ref={canvasRef} className={className} style={{ display: "block" }} />;
 }

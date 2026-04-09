@@ -30,7 +30,7 @@ export default function FridayDashboard() {
   return (
     <ToastProvider>
       <AgentModalProvider>
-        <div className="relative dot-grid h-screen overflow-hidden" suppressHydrationWarning>
+        <div className="relative dot-grid cosmic-bg h-screen overflow-hidden" suppressHydrationWarning>
           {/* Ambient blobs — reduced to 2 for performance */}
           <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
             <div className="ambient-blob" style={{ width: 500, height: 500, background: "radial-gradient(circle, #1856FF 0%, transparent 70%)", top: "-10%", left: "-5%", opacity: 0.18 }} />
