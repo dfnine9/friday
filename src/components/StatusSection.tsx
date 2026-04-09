@@ -1,19 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, createContext, useContext } from "react";
 import { Cpu, MemoryStick, HardDrive, Thermometer } from "lucide-react";
+
+// Shared visibility context so all gauges animate together
+const VisibleContext = createContext(false);
 
 function useAnimatedValue(target: number, duration = 1400) {
   const [value, setValue] = useState(0);
-  const [started, setStarted] = useState(false);
+  const visible = useContext(VisibleContext);
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setStarted(true); }, { threshold: 0.3 });
-    const el = document.getElementById("status");
-    if (el) observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-  useEffect(() => {
-    if (!started) return;
+    if (!visible) return;
     const startTime = Date.now();
     const tick = () => {
       const p = Math.min((Date.now() - startTime) / duration, 1);
@@ -21,7 +18,7 @@ function useAnimatedValue(target: number, duration = 1400) {
       if (p < 1) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
-  }, [started, target, duration]);
+  }, [visible, target, duration]);
   return value;
 }
 
@@ -47,37 +44,53 @@ function Gauge({ value, label, color, size = 120 }: { value: number; label: stri
 }
 
 export default function StatusSection() {
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section id="status" className="section">
-      <div className="section-inner">
-        <div className="section-header">
-          <h2>System Status</h2>
-          <p>Real-time resource utilization across all F.R.I.D.A.Y. neural subsystems</p>
-        </div>
-        <div className="glass-card luminous-border p-8 md:p-12 mb-8">
-          <div className="flex items-center justify-around flex-wrap gap-8">
-            <Gauge value={34} label="CPU" color="#1856FF" />
-            <Gauge value={62} label="Memory" color="#7c3aed" />
-            <Gauge value={28} label="GPU" color="#07CA6B" />
-            <Gauge value={45} label="Storage" color="#E89558" />
-            <Gauge value={18} label="Network" color="#EA2143" />
+    <VisibleContext.Provider value={visible}>
+      <section id="status" className="section" ref={sectionRef}>
+        <div className="section-inner">
+          <div className="section-header">
+            <h2>System Status</h2>
+            <p>Real-time resource utilization across all F.R.I.D.A.Y. neural subsystems</p>
+          </div>
+          <div className="glass-card luminous-border p-8 md:p-12 mb-8">
+            <div className="flex items-center justify-around flex-wrap gap-8">
+              <Gauge value={34} label="CPU" color="#1856FF" />
+              <Gauge value={62} label="Memory" color="#7c3aed" />
+              <Gauge value={28} label="GPU" color="#07CA6B" />
+              <Gauge value={45} label="Storage" color="#E89558" />
+              <Gauge value={18} label="Network" color="#EA2143" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 stagger">
+            {[
+              { icon: <Cpu className="w-5 h-5" />, label: "Neural Cores", value: "8 / 8 Active", color: "#1856FF" },
+              { icon: <MemoryStick className="w-5 h-5" />, label: "Context Window", value: "1,000,000 tokens", color: "#7c3aed" },
+              { icon: <HardDrive className="w-5 h-5" />, label: "Vector Store", value: "2.4M embeddings", color: "#07CA6B" },
+              { icon: <Thermometer className="w-5 h-5" />, label: "Inference Temp", value: "0.7 balanced", color: "#E89558" },
+            ].map((item) => (
+              <div key={item.label} className="glass-card depth-card p-5 group relative overflow-hidden text-center">
+                <div className="w-10 h-10 rounded-xl mx-auto mb-3 flex items-center justify-center" style={{ background: `${item.color}15`, border: `1px solid ${item.color}20`, color: item.color }}>{item.icon}</div>
+                <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider">{item.label}</div>
+                <div className="text-sm font-bold text-text-primary mt-1 font-mono">{item.value}</div>
+              </div>
+            ))}
           </div>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 stagger">
-          {[
-            { icon: <Cpu className="w-5 h-5" />, label: "Neural Cores", value: "8 / 8 Active", color: "#1856FF" },
-            { icon: <MemoryStick className="w-5 h-5" />, label: "Context Window", value: "1,000,000 tokens", color: "#7c3aed" },
-            { icon: <HardDrive className="w-5 h-5" />, label: "Vector Store", value: "2.4M embeddings", color: "#07CA6B" },
-            { icon: <Thermometer className="w-5 h-5" />, label: "Inference Temp", value: "0.7 balanced", color: "#E89558" },
-          ].map((item) => (
-            <div key={item.label} className="glass-card depth-card p-5 group relative overflow-hidden text-center">
-              <div className="w-10 h-10 rounded-xl mx-auto mb-3 flex items-center justify-center" style={{ background: `${item.color}15`, border: `1px solid ${item.color}20`, color: item.color }}>{item.icon}</div>
-              <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider">{item.label}</div>
-              <div className="text-sm font-bold text-text-primary mt-1 font-mono">{item.value}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
+      </section>
+    </VisibleContext.Provider>
   );
 }
