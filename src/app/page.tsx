@@ -22,22 +22,15 @@ export default function Dashboard() {
   const Panel = PANELS[activeTab] ?? OverviewPanel;
 
   return (
-    <div className="h-screen flex bg-background grid-bg">
-      {/* Ambient background effects */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-primary/[0.03] rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-accent/[0.02] rounded-full blur-[100px]" />
-        <div className="absolute top-[30%] right-[20%] w-[300px] h-[300px] bg-[#a78bfa]/[0.015] rounded-full blur-[80px]" />
-      </div>
-
+    <div className="h-screen flex mesh-bg">
       {/* Sidebar */}
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0 relative z-[1]">
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col min-w-0">
         <TopBar />
-        <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 overflow-y-auto px-6 py-6">
+          <div className="max-w-[1400px] mx-auto">
             <Panel />
           </div>
         </main>

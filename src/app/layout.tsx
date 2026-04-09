@@ -1,29 +1,24 @@
 import type { Metadata } from "next";
-import { Poppins, Oswald, JetBrains_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const poppins = Poppins({
-  variable: "--font-poppins",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800"],
-});
-
-const oswald = Oswald({
-  variable: "--font-oswald",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
 });
 
 const jetbrains = JetBrains_Mono({
   variable: "--font-jetbrains",
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
-  title: "F.R.I.D.A.Y. — Autonomous AI Dashboard",
+  title: "F.R.I.D.A.Y. — Autonomous Intelligence Platform",
   description:
-    "Female Replacement Intelligent Digital Assistant Youth — The next evolution beyond J.A.R.V.I.S. 6,502 skills. 942 agents. Infinite capability.",
+    "Female Replacement Intelligent Digital Assistant Youth. Multi-agent orchestration, real-time threat analysis, autonomous operations. 6,502 skills. 942 agents. Zero-latency command execution.",
+  icons: { icon: "/favicon.ico" },
 };
 
 export default function RootLayout({
@@ -32,11 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${poppins.variable} ${oswald.variable} ${jetbrains.variable} h-full`}
-    >
-      <body className="h-full overflow-hidden">{children}</body>
+    <html lang="en" className={`${jakarta.variable} ${jetbrains.variable} h-full`}>
+      <body className="h-full overflow-hidden antialiased">{children}</body>
     </html>
   );
 }

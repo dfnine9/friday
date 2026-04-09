@@ -8,9 +8,11 @@ import {
   List,
   ChevronRight,
   Sparkles,
+  Users,
+  Cpu,
 } from "lucide-react";
-import GlassCard from "./GlassCard";
-import { SKILL_CATEGORIES, TOP_AGENTS } from "@/data/friday-data";
+import GlassCard, { SectionHeader } from "./GlassCard";
+import { SKILL_CATEGORIES, AGENT_TIERS, STATS } from "@/data/friday-data";
 import clsx from "clsx";
 
 export default function SkillsPanel() {
@@ -19,31 +21,26 @@ export default function SkillsPanel() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const filteredCategories = SKILL_CATEGORIES.filter(
-    (c) =>
-      !search || c.name.toLowerCase().includes(search.toLowerCase())
+    (c) => !search || c.name.toLowerCase().includes(search.toLowerCase())
   ).filter((c) => !selectedCategory || c.name === selectedCategory);
 
   return (
-    <div className="space-y-5 animate-fade-in-up">
+    <div className="space-y-6 animate-fade-in-up">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2
-            className="text-xl font-bold text-text-primary tracking-wide"
-            style={{ fontFamily: "var(--font-oswald)" }}
-          >
-            SKILL MATRIX
-          </h2>
-          <p className="text-xs text-text-muted mt-0.5">
-            6,502 skills across 12 domains — 942 autonomous agents
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
+        <SectionHeader
+          title="Skill Matrix"
+          subtitle={`${STATS.totalSkills.toLocaleString()} skills across ${SKILL_CATEGORIES.length} domains — ${STATS.totalAgents} autonomous agents`}
+          icon={<Cpu className="w-5 h-5" />}
+        />
+        <div className="flex items-center gap-1 glass-card !rounded-xl !p-1">
           <button
             onClick={() => setView("grid")}
             className={clsx(
-              "p-1.5 rounded-lg transition-colors",
-              view === "grid" ? "bg-primary-dim text-primary" : "text-text-muted hover:text-text-secondary"
+              "p-2 rounded-lg transition-all",
+              view === "grid"
+                ? "bg-primary text-white shadow-sm"
+                : "text-text-muted hover:text-text-secondary"
             )}
           >
             <Grid3x3 className="w-4 h-4" />
@@ -51,8 +48,10 @@ export default function SkillsPanel() {
           <button
             onClick={() => setView("list")}
             className={clsx(
-              "p-1.5 rounded-lg transition-colors",
-              view === "list" ? "bg-primary-dim text-primary" : "text-text-muted hover:text-text-secondary"
+              "p-2 rounded-lg transition-all",
+              view === "list"
+                ? "bg-primary text-white shadow-sm"
+                : "text-text-muted hover:text-text-secondary"
             )}
           >
             <List className="w-4 h-4" />
@@ -61,34 +60,36 @@ export default function SkillsPanel() {
       </div>
 
       {/* Search */}
-      <div className="glass-card rounded-xl flex items-center gap-3 px-4 py-3">
+      <div className="glass-card !rounded-2xl flex items-center gap-3 px-5 py-3.5">
         <Search className="w-4 h-4 text-text-muted shrink-0" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search skill categories..."
-          className="bg-transparent text-sm text-text-primary placeholder:text-text-muted focus:outline-none w-full"
+          placeholder="Search skill domains..."
+          className="bg-transparent text-sm text-text-primary placeholder:text-text-muted focus:outline-none w-full font-medium"
         />
         {selectedCategory && (
           <button
             onClick={() => setSelectedCategory(null)}
-            className="text-[10px] px-2 py-0.5 rounded-full bg-primary-dim text-primary shrink-0"
+            className="text-[11px] px-3 py-1 rounded-full bg-primary text-white font-semibold shrink-0 hover:bg-primary-hover transition-colors"
           >
-            Clear
+            Clear filter
           </button>
         )}
       </div>
 
-      {/* Skill Categories */}
+      {/* Skill Domains */}
       <div>
-        <h3 className="text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-2">
-          <Filter className="w-3 h-3" />
-          Skill Domains
-        </h3>
+        <div className="flex items-center gap-2 mb-3">
+          <Filter className="w-3.5 h-3.5 text-text-muted" />
+          <span className="text-[11px] font-bold text-text-muted uppercase tracking-widest">
+            Skill Domains
+          </span>
+        </div>
         <div
           className={clsx(
-            "gap-3 stagger",
+            "gap-4 stagger",
             view === "grid"
               ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
               : "flex flex-col"
@@ -101,39 +102,48 @@ export default function SkillsPanel() {
                 setSelectedCategory(selectedCategory === cat.name ? null : cat.name)
               }
               className={clsx(
-                "glass-card rounded-xl p-4 text-left transition-all duration-200 group",
-                selectedCategory === cat.name && "ring-1 ring-primary/30 glow-primary"
+                "glass-card !rounded-2xl p-5 text-left transition-all duration-200 group relative overflow-hidden",
+                selectedCategory === cat.name && "ring-2 ring-primary/20 glow-primary"
               )}
             >
-              <div className="flex items-center justify-between mb-3">
-                <div
-                  className="w-9 h-9 rounded-lg flex items-center justify-center text-sm"
-                  style={{ background: `${cat.color}15`, color: cat.color }}
-                >
-                  <Sparkles className="w-4 h-4" />
+              {/* Hover accent */}
+              <div
+                className="absolute -top-10 -right-10 w-24 h-24 rounded-full opacity-0 group-hover:opacity-[0.06] transition-opacity duration-500"
+                style={{ background: cat.color }}
+              />
+              <div className="relative">
+                <div className="flex items-center justify-between mb-4">
+                  <div
+                    className="w-11 h-11 rounded-xl flex items-center justify-center"
+                    style={{ background: `${cat.color}0D`, color: cat.color }}
+                  >
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-text-muted opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
                 </div>
-                <ChevronRight className="w-3.5 h-3.5 text-text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-              <h4 className="text-sm font-semibold text-text-primary">{cat.name}</h4>
-              <div className="flex items-center gap-2 mt-1.5">
-                <span
-                  className="text-lg font-bold font-mono"
-                  style={{ fontFamily: "var(--font-oswald)", color: cat.color }}
-                >
-                  {cat.count}
-                </span>
-                <span className="text-[10px] text-text-muted">skills</span>
-              </div>
-              {/* Bar */}
-              <div className="mt-3 h-1 rounded-full bg-white/[0.04] overflow-hidden">
-                <div
-                  className="h-full rounded-full"
-                  style={{
-                    width: `${(cat.count / SKILL_CATEGORIES[0].count) * 100}%`,
-                    background: cat.color,
-                    boxShadow: `0 0 8px ${cat.color}40`,
-                  }}
-                />
+                <h4 className="text-sm font-bold text-text-primary">{cat.name}</h4>
+                <p className="text-[11px] text-text-muted mt-1 leading-relaxed line-clamp-2">
+                  {cat.description}
+                </p>
+                <div className="flex items-baseline gap-1.5 mt-3">
+                  <span
+                    className="text-xl font-bold"
+                    style={{ color: cat.color }}
+                  >
+                    {cat.count.toLocaleString()}
+                  </span>
+                  <span className="text-[10px] font-medium text-text-muted">skills</span>
+                </div>
+                {/* Progress bar */}
+                <div className="mt-3 h-1.5 rounded-full bg-black/[0.04] overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${(cat.count / SKILL_CATEGORIES[0].count) * 100}%`,
+                      background: cat.color,
+                    }}
+                  />
+                </div>
               </div>
             </button>
           ))}
@@ -142,39 +152,49 @@ export default function SkillsPanel() {
 
       {/* Agent Tiers */}
       <div>
-        <h3 className="text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-3">
-          Agent Tiers
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 stagger">
-          {TOP_AGENTS.map((tier) => (
-            <GlassCard key={tier.tier} padding="lg">
-              <div className="flex items-center gap-2 mb-3">
+        <SectionHeader
+          title="Agent Fleet"
+          subtitle="Tiered autonomous agents with specialized capabilities"
+          icon={<Users className="w-5 h-5" />}
+        />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 stagger">
+          {AGENT_TIERS.map((tier) => (
+            <GlassCard key={tier.tier} padding="lg" className="relative overflow-hidden">
+              {/* Top accent bar */}
+              <div
+                className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl"
+                style={{ background: `linear-gradient(90deg, ${tier.color}, ${tier.color}66)` }}
+              />
+              <div className="flex items-center gap-3 mb-1 pt-1">
                 <div
-                  className="w-2 h-2 rounded-full"
-                  style={{ background: tier.color, boxShadow: `0 0 8px ${tier.color}60` }}
+                  className="w-3 h-3 rounded-full"
+                  style={{ background: tier.color, boxShadow: `0 0 8px ${tier.color}40` }}
                 />
-                <h4
-                  className="text-sm font-bold tracking-wide"
-                  style={{ fontFamily: "var(--font-oswald)", color: tier.color }}
-                >
+                <h4 className="text-sm font-bold text-text-primary">
                   {tier.tier}
                 </h4>
-                <span className="text-[10px] text-text-muted ml-auto">
+                <span className="text-[10px] font-bold text-text-muted ml-auto">
                   {tier.agents.length} agents
                 </span>
               </div>
-              <div className="space-y-1.5">
+              <p className="text-[10px] text-text-muted mb-3">{tier.description}</p>
+              <div className="space-y-1">
                 {tier.agents.map((agent) => (
                   <div
-                    key={agent}
-                    className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-white/[0.03] transition-colors group cursor-pointer"
+                    key={agent.name}
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-black/[0.02] transition-colors group cursor-pointer"
                   >
-                    <div
-                      className="w-1 h-4 rounded-full opacity-40 group-hover:opacity-100 transition-opacity"
-                      style={{ background: tier.color }}
-                    />
-                    <span className="text-xs text-text-secondary font-mono group-hover:text-text-primary transition-colors truncate">
-                      {agent}
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div
+                        className="w-1.5 h-5 rounded-full opacity-30 group-hover:opacity-100 transition-opacity shrink-0"
+                        style={{ background: tier.color }}
+                      />
+                      <span className="text-xs font-semibold text-text-secondary group-hover:text-text-primary transition-colors truncate font-mono">
+                        {agent.name}
+                      </span>
+                    </div>
+                    <span className="text-[9px] text-text-muted truncate ml-2 max-w-[120px]">
+                      {agent.specialty}
                     </span>
                   </div>
                 ))}

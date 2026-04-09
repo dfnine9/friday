@@ -7,8 +7,9 @@ type GlassCardProps = {
   children: ReactNode;
   className?: string;
   hover?: boolean;
-  glow?: "primary" | "accent" | "none";
-  padding?: "sm" | "md" | "lg";
+  glow?: "primary" | "success" | "none";
+  padding?: "none" | "sm" | "md" | "lg";
+  luminous?: boolean;
 };
 
 export default function GlassCard({
@@ -17,16 +18,19 @@ export default function GlassCard({
   hover = true,
   glow = "none",
   padding = "md",
+  luminous = false,
 }: GlassCardProps) {
   return (
     <div
       className={clsx(
-        "glass-card rounded-xl transition-all duration-300",
+        "glass-card",
         hover && "depth-card",
         glow === "primary" && "glow-primary",
-        glow === "accent" && "glow-accent",
+        glow === "success" && "glow-success",
+        luminous && "luminous-border",
+        padding === "none" && "p-0",
         padding === "sm" && "p-3",
-        padding === "md" && "p-4",
+        padding === "md" && "p-5",
         padding === "lg" && "p-6",
         className
       )}
@@ -40,45 +44,63 @@ export function StatCard({
   label,
   value,
   sub,
-  color = "#00BD7D",
+  trend,
+  color = "#1856FF",
   icon,
 }: {
   label: string;
   value: string | number;
   sub?: string;
+  trend?: { value: string; positive: boolean };
   color?: string;
   icon?: ReactNode;
 }) {
   return (
     <GlassCard className="relative overflow-hidden group">
-      {/* Ambient glow */}
+      {/* Subtle corner accent */}
       <div
-        className="absolute -top-8 -right-8 w-24 h-24 rounded-full opacity-10 blur-2xl transition-opacity duration-500 group-hover:opacity-20"
+        className="absolute -top-12 -right-12 w-28 h-28 rounded-full opacity-[0.04] group-hover:opacity-[0.08] transition-opacity duration-500"
         style={{ background: color }}
       />
       <div className="relative">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-[11px] font-medium text-text-muted uppercase tracking-wider">
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-xs font-medium text-text-muted">
             {label}
           </span>
           {icon && (
             <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: `${color}15` }}
+              className="w-9 h-9 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+              style={{ background: `${color}0D` }}
             >
               <div style={{ color }}>{icon}</div>
             </div>
           )}
         </div>
-        <div
-          className="text-2xl font-bold tracking-tight"
-          style={{ fontFamily: "var(--font-oswald)", color }}
-        >
-          {typeof value === "number" ? value.toLocaleString() : value}
+        <div className="animate-count-up">
+          <span
+            className="text-[28px] font-bold tracking-tight leading-none"
+            style={{ color }}
+          >
+            {typeof value === "number" ? value.toLocaleString() : value}
+          </span>
         </div>
-        {sub && (
-          <p className="text-[11px] text-text-muted mt-1">{sub}</p>
-        )}
+        <div className="flex items-center justify-between mt-2">
+          {sub && (
+            <p className="text-[11px] text-text-muted">{sub}</p>
+          )}
+          {trend && (
+            <span
+              className={clsx(
+                "text-[11px] font-semibold px-2 py-0.5 rounded-full",
+                trend.positive
+                  ? "bg-success-dim text-success"
+                  : "bg-danger-dim text-danger"
+              )}
+            >
+              {trend.value}
+            </span>
+          )}
+        </div>
       </div>
     </GlassCard>
   );
@@ -90,24 +112,69 @@ export function StatusBadge({
   status: "online" | "degraded" | "offline";
 }) {
   const config = {
-    online: { color: "#16A34A", bg: "rgba(22,163,74,0.12)", label: "Online" },
-    degraded: { color: "#D97706", bg: "rgba(217,119,6,0.12)", label: "Degraded" },
-    offline: { color: "#DC2626", bg: "rgba(220,38,38,0.12)", label: "Offline" },
+    online: {
+      dot: "status-online",
+      bg: "bg-success-dim",
+      text: "text-success",
+      label: "Online",
+    },
+    degraded: {
+      dot: "status-degraded",
+      bg: "bg-warning-dim",
+      text: "text-warning",
+      label: "Degraded",
+    },
+    offline: {
+      dot: "status-offline",
+      bg: "bg-danger-dim",
+      text: "text-danger",
+      label: "Offline",
+    },
   };
   const c = config[status];
   return (
     <span
-      className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium"
-      style={{ background: c.bg, color: c.color }}
+      className={clsx(
+        "inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-[11px] font-semibold",
+        c.bg,
+        c.text
+      )}
     >
-      <span
-        className="w-1.5 h-1.5 rounded-full"
-        style={{
-          background: c.color,
-          boxShadow: status === "online" ? `0 0 6px ${c.color}` : undefined,
-        }}
-      />
+      <span className={c.dot} />
       {c.label}
     </span>
+  );
+}
+
+export function SectionHeader({
+  title,
+  subtitle,
+  icon,
+  action,
+}: {
+  title: string;
+  subtitle?: string;
+  icon?: ReactNode;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="flex items-start justify-between">
+      <div className="flex items-center gap-3">
+        {icon && (
+          <div className="w-10 h-10 rounded-xl bg-primary-dim flex items-center justify-center text-primary">
+            {icon}
+          </div>
+        )}
+        <div>
+          <h2 className="text-lg font-bold text-text-primary tracking-tight">
+            {title}
+          </h2>
+          {subtitle && (
+            <p className="text-xs text-text-muted mt-0.5">{subtitle}</p>
+          )}
+        </div>
+      </div>
+      {action}
+    </div>
   );
 }
