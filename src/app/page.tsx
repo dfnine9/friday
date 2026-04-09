@@ -1,7 +1,5 @@
 "use client";
 
-import ClientOnly from "@/components/ClientOnly";
-import LazySection from "@/components/LazySection";
 import { ToastProvider } from "@/components/ToastSystem";
 import { AgentModalProvider } from "@/components/AgentModal";
 import CommandPalette from "@/components/CommandPalette";
@@ -22,47 +20,44 @@ import ChatSection from "@/components/ChatSection";
 import DownloadSection from "@/components/DownloadSection";
 import IntegrationsSection from "@/components/IntegrationsSection";
 import Footer from "@/components/Footer";
+import LazySection from "@/components/LazySection";
 
 export default function FridayDashboard() {
   return (
-    <ClientOnly>
-      <ToastProvider>
-        <AgentModalProvider>
-          <div className="relative dot-grid">
-            {/* ═══ AMBIENT BLOBS — reduced to 4 for performance ═══ */}
-            <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-              <div className="ambient-blob animate-blob" style={{ width: 600, height: 600, background: "radial-gradient(circle, #1856FF 0%, transparent 70%)", top: "-5%", left: "0%", opacity: 0.2 }} />
-              <div className="ambient-blob animate-blob" style={{ width: 500, height: 500, background: "radial-gradient(circle, #7c3aed 0%, transparent 70%)", top: "30%", right: "-5%", opacity: 0.16, animationDelay: "-7s" }} />
-              <div className="ambient-blob animate-blob" style={{ width: 450, height: 450, background: "radial-gradient(circle, #06b6d4 0%, transparent 70%)", top: "60%", left: "20%", opacity: 0.14, animationDelay: "-14s" }} />
-              <div className="ambient-blob animate-blob" style={{ width: 500, height: 500, background: "radial-gradient(circle, #E89558 0%, transparent 70%)", top: "85%", right: "10%", opacity: 0.12, animationDelay: "-20s" }} />
-            </div>
-
-            {/* Navigation + Command Palette */}
-            <Navbar />
-            <CommandPalette />
-
-            {/* Sections — heavy ones are lazy-loaded */}
-            <main className="relative z-[1]">
-              <HeroSection />
-              <MetricsSection />
-              <CapabilitiesSection />
-              <LazySection><SkillsSection /></LazySection>
-              <LazySection><AgentsSection /></LazySection>
-              <LazySection><StatusSection /></LazySection>
-              <LazySection><ServicesSection /></LazySection>
-              <LazySection><ActionsSection /></LazySection>
-              <LazySection><AnalyticsSection /></LazySection>
-              <LazySection><PerformanceSection /></LazySection>
-              <LazySection><TimelineSection /></LazySection>
-              <LazySection><TerminalSection /></LazySection>
-              <LazySection><ChatSection /></LazySection>
-              <LazySection><DownloadSection /></LazySection>
-              <LazySection><IntegrationsSection /></LazySection>
-              <Footer />
-            </main>
+    <ToastProvider>
+      <AgentModalProvider>
+        <div className="relative dot-grid" suppressHydrationWarning>
+          {/* ═══ AMBIENT BLOBS ═══ */}
+          <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+            <div className="ambient-blob animate-blob" style={{ width: 600, height: 600, background: "radial-gradient(circle, #1856FF 0%, transparent 70%)", top: "-5%", left: "0%", opacity: 0.2 }} />
+            <div className="ambient-blob animate-blob" style={{ width: 500, height: 500, background: "radial-gradient(circle, #7c3aed 0%, transparent 70%)", top: "30%", right: "-5%", opacity: 0.16, animationDelay: "-7s" }} />
+            <div className="ambient-blob animate-blob" style={{ width: 450, height: 450, background: "radial-gradient(circle, #06b6d4 0%, transparent 70%)", top: "60%", left: "20%", opacity: 0.14, animationDelay: "-14s" }} />
+            <div className="ambient-blob animate-blob" style={{ width: 500, height: 500, background: "radial-gradient(circle, #E89558 0%, transparent 70%)", top: "85%", right: "10%", opacity: 0.12, animationDelay: "-20s" }} />
           </div>
-        </AgentModalProvider>
-      </ToastProvider>
-    </ClientOnly>
+
+          <Navbar />
+          <CommandPalette />
+
+          <main className="relative z-[1]">
+            <HeroSection />
+            <MetricsSection />
+            <CapabilitiesSection />
+            <SkillsSection />
+            <AgentsSection />
+            <LazySection><StatusSection /></LazySection>
+            <LazySection><ServicesSection /></LazySection>
+            <LazySection><ActionsSection /></LazySection>
+            <LazySection><AnalyticsSection /></LazySection>
+            <LazySection><PerformanceSection /></LazySection>
+            <LazySection><TimelineSection /></LazySection>
+            <LazySection><TerminalSection /></LazySection>
+            <LazySection><ChatSection /></LazySection>
+            <LazySection><DownloadSection /></LazySection>
+            <LazySection><IntegrationsSection /></LazySection>
+            <Footer />
+          </main>
+        </div>
+      </AgentModalProvider>
+    </ToastProvider>
   );
 }
