@@ -120,14 +120,14 @@ export default function ChatSection() {
   };
 
   return (
-    <section id="chat" className="section">
-      <div className="section-inner">
-        <div className="section-header">
+    <section id="chat" className="h-full flex flex-col px-4 py-4">
+      <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col">
+        <div className="text-center mb-4 shrink-0">
           <h2>F.R.I.D.A.Y. AI Terminal</h2>
           <p>Your autonomous AI assistant — ask anything. No desktop app required.</p>
         </div>
 
-        <div className="glass-card luminous-border shimmer-border overflow-hidden max-w-5xl mx-auto">
+        <div className="glass-card overflow-hidden flex-1 flex flex-col">
           {/* Header bar */}
           <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.05]">
             <div className="flex items-center gap-3">
@@ -150,7 +150,7 @@ export default function ChatSection() {
           </div>
 
           {/* Messages */}
-          <div ref={scrollRef} className="p-5 space-y-4 min-h-[400px] max-h-[500px] overflow-y-auto">
+          <div ref={scrollRef} className="p-5 space-y-4 flex-1 overflow-y-auto">
             {messages.map((msg, i) => (
               <div key={i} className={clsx("flex gap-3", msg.role === "user" ? "flex-row-reverse" : "")}>
                 {/* Avatar */}

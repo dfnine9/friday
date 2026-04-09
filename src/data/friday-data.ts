@@ -337,19 +337,14 @@ export const TERMINAL_LINES = [
 
 // ═══ NAV SECTIONS ═══
 
-export const NAV_SECTIONS = [
-  { id: "hero", label: "Home" },
-  { id: "metrics", label: "Metrics" },
-  { id: "capabilities", label: "Capabilities" },
-  { id: "skills", label: "Skills" },
-  { id: "agents", label: "Agents" },
-  { id: "status", label: "Status" },
-  { id: "services", label: "Services" },
-  { id: "actions", label: "Actions" },
-  { id: "analytics", label: "Analytics" },
-  { id: "timeline", label: "Timeline" },
-  { id: "terminal", label: "Terminal" },
-  { id: "chat", label: "AI Chat" },
-  { id: "downloads", label: "Downloads" },
-  { id: "integrations", label: "Integrations" },
+// Tab-based navigation (replaces scroll sections)
+export const TABS = [
+  { id: "chat", label: "AI Chat", icon: "message-circle" },
+  { id: "overview", label: "Overview", icon: "layout-dashboard" },
+  { id: "agents", label: "Skills & Agents", icon: "cpu" },
+  { id: "analytics", label: "Analytics", icon: "bar-chart" },
+  { id: "tools", label: "Tools", icon: "zap" },
 ];
+
+// Keep for CommandPalette search compatibility
+export const NAV_SECTIONS = TABS;

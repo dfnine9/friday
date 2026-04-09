@@ -1,84 +1,62 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { NAV_SECTIONS } from "@/data/friday-data";
+import { MessageCircle, LayoutDashboard, Cpu, BarChart3, Zap } from "lucide-react";
+import { TABS } from "@/data/friday-data";
 import ArcReactorLogo from "./ArcReactorLogo";
 import clsx from "clsx";
 
-export default function Navbar() {
-  const [activeSection, setActiveSection] = useState("hero");
-  const [scrolled, setScrolled] = useState(false);
+const ICON_MAP: Record<string, React.ReactNode> = {
+  "message-circle": <MessageCircle className="w-4 h-4" />,
+  "layout-dashboard": <LayoutDashboard className="w-4 h-4" />,
+  cpu: <Cpu className="w-4 h-4" />,
+  "bar-chart": <BarChart3 className="w-4 h-4" />,
+  zap: <Zap className="w-4 h-4" />,
+};
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
+type NavbarProps = {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+};
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        });
-      },
-      { threshold: 0.3, rootMargin: "-80px 0px 0px 0px" }
-    );
-
-    NAV_SECTIONS.forEach(({ id }) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
+export default function Navbar({ activeTab, onTabChange }: NavbarProps) {
   return (
     <nav
-      className={clsx(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        scrolled
-          ? "py-3 shadow-lg shadow-black/20"
-          : "py-4 bg-transparent"
-      )}
-      style={scrolled ? { background: "rgba(8,8,15,0.92)", borderBottom: "1px solid rgba(255,255,255,0.06)" } : undefined}
+      className="fixed top-0 left-0 right-0 z-50 h-16 flex items-center"
+      style={{ background: "rgba(8,8,15,0.95)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}
     >
-      <div className="max-w-[1600px] mx-auto px-6 flex items-center justify-between">
+      <div className="max-w-[1600px] mx-auto px-6 flex items-center justify-between w-full">
         {/* Logo */}
-        <a href="#hero" className="flex items-center gap-2.5 shrink-0">
+        <div className="flex items-center gap-2.5 shrink-0">
           <ArcReactorLogo size="sm" />
           <span className="text-sm font-bold text-text-primary tracking-tight">
             F.R.I.D.A.Y.
           </span>
-        </a>
+        </div>
 
-        {/* Section Links */}
-        <div className="hidden md:flex items-center gap-1 overflow-x-auto">
-          {NAV_SECTIONS.filter((s) => s.id !== "hero").map(({ id, label }) => (
-            <a
+        {/* Tab buttons */}
+        <div className="flex items-center gap-1">
+          {TABS.map(({ id, label, icon }) => (
+            <button
               key={id}
-              href={`#${id}`}
+              onClick={() => onTabChange(id)}
               className={clsx(
-                "px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all whitespace-nowrap",
-                activeSection === id
+                "flex items-center gap-2 px-4 py-2 rounded-xl text-[12px] font-semibold transition-all",
+                activeTab === id
                   ? "bg-primary/15 text-primary border border-primary/20"
-                  : "text-text-muted hover:text-text-secondary hover:bg-white/[0.03]"
+                  : "text-text-muted hover:text-text-secondary hover:bg-white/[0.03] border border-transparent"
               )}
             >
-              {label}
-            </a>
+              {ICON_MAP[icon]}
+              <span className="hidden sm:inline">{label}</span>
+            </button>
           ))}
         </div>
 
-        {/* Cmd+K + Status */}
+        {/* Right: Search + Status */}
         <div className="flex items-center gap-3 shrink-0">
           <button
             onClick={() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg glass-inner text-[10px] font-bold text-text-muted hover:text-primary hover:border-primary/20 transition-colors border border-white/[0.05]"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold text-text-muted hover:text-primary transition-colors border border-white/[0.05]"
           >
             <span>Search</span>
             <kbd className="px-1 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] font-mono">⌘K</kbd>
