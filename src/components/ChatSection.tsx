@@ -71,15 +71,20 @@ function generateResponse(input: string): string {
 }
 
 export default function ChatSection() {
-  const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "F.R.I.D.A.Y. online. All systems nominal. I have access to 6,502 skills, 942 agents, and 966 commands. How can I assist you?", timestamp: new Date() },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Initialize after mount to avoid hydration mismatch with Date
+  useEffect(() => {
+    setMounted(true);
+    setMessages([{ role: "assistant", content: "F.R.I.D.A.Y. online. All systems nominal. I have access to 6,502 skills, 942 agents, and 966 commands. How can I assist you?", timestamp: new Date() }]);
+  }, []);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
