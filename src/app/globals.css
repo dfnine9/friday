@@ -123,9 +123,10 @@ html {
 .ambient-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(100px);
+  filter: blur(80px);
   pointer-events: none;
   will-change: transform;
+  contain: layout style paint;
 }
 
 /* ═══════════════════════════════════════════
@@ -243,7 +244,7 @@ html {
 .shimmer-border {
   position: relative;
 }
-.shimmer-border::after {
+.shimmer-border:hover::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -265,21 +266,21 @@ html {
   animation: border-shimmer 3s ease-in-out infinite;
 }
 
-/* Scan line across cards */
+/* Scan line — hover only for performance */
 @keyframes hud-scan {
   0% { top: -2px; opacity: 0; }
   10% { opacity: 1; }
   90% { opacity: 1; }
   100% { top: calc(100% + 2px); opacity: 0; }
 }
-.hud-scanline::before {
+.hud-scanline:hover::before {
   content: '';
   position: absolute;
   left: 0;
   right: 0;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(24,86,255,0.4), transparent);
-  animation: hud-scan 4s ease-in-out infinite;
+  animation: hud-scan 2s ease-in-out;
   pointer-events: none;
   z-index: 10;
 }

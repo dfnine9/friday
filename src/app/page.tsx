@@ -1,6 +1,7 @@
 "use client";
 
 import ClientOnly from "@/components/ClientOnly";
+import LazySection from "@/components/LazySection";
 import { ToastProvider } from "@/components/ToastSystem";
 import { AgentModalProvider } from "@/components/AgentModal";
 import CommandPalette from "@/components/CommandPalette";
@@ -28,38 +29,35 @@ export default function FridayDashboard() {
       <ToastProvider>
         <AgentModalProvider>
           <div className="relative dot-grid">
-            {/* ═══ AMBIENT BLOB LAYER ═══ */}
+            {/* ═══ AMBIENT BLOBS — reduced to 4 for performance ═══ */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-              <div className="ambient-blob animate-blob" style={{ width: 700, height: 700, background: "radial-gradient(circle, #1856FF 0%, transparent 70%)", top: "-8%", left: "0%", opacity: 0.25 }} />
-              <div className="ambient-blob animate-blob" style={{ width: 600, height: 600, background: "radial-gradient(circle, #7c3aed 0%, transparent 70%)", top: "20%", right: "-5%", opacity: 0.2, animationDelay: "-7s" }} />
-              <div className="ambient-blob animate-blob" style={{ width: 550, height: 550, background: "radial-gradient(circle, #06b6d4 0%, transparent 70%)", top: "45%", left: "25%", opacity: 0.18, animationDelay: "-14s" }} />
-              <div className="ambient-blob animate-blob" style={{ width: 500, height: 500, background: "radial-gradient(circle, #f43f5e 0%, transparent 70%)", top: "65%", left: "-8%", opacity: 0.12, animationDelay: "-4s" }} />
-              <div className="ambient-blob animate-blob" style={{ width: 450, height: 450, background: "radial-gradient(circle, #07CA6B 0%, transparent 70%)", top: "8%", right: "15%", opacity: 0.12, animationDelay: "-10s" }} />
-              <div className="ambient-blob animate-blob" style={{ width: 600, height: 600, background: "radial-gradient(circle, #E89558 0%, transparent 70%)", top: "80%", right: "5%", opacity: 0.14, animationDelay: "-16s" }} />
-              <div className="ambient-blob animate-blob" style={{ width: 400, height: 400, background: "radial-gradient(circle, #1856FF 0%, transparent 70%)", top: "55%", right: "30%", opacity: 0.1, animationDelay: "-20s" }} />
+              <div className="ambient-blob animate-blob" style={{ width: 600, height: 600, background: "radial-gradient(circle, #1856FF 0%, transparent 70%)", top: "-5%", left: "0%", opacity: 0.2 }} />
+              <div className="ambient-blob animate-blob" style={{ width: 500, height: 500, background: "radial-gradient(circle, #7c3aed 0%, transparent 70%)", top: "30%", right: "-5%", opacity: 0.16, animationDelay: "-7s" }} />
+              <div className="ambient-blob animate-blob" style={{ width: 450, height: 450, background: "radial-gradient(circle, #06b6d4 0%, transparent 70%)", top: "60%", left: "20%", opacity: 0.14, animationDelay: "-14s" }} />
+              <div className="ambient-blob animate-blob" style={{ width: 500, height: 500, background: "radial-gradient(circle, #E89558 0%, transparent 70%)", top: "85%", right: "10%", opacity: 0.12, animationDelay: "-20s" }} />
             </div>
 
             {/* Navigation + Command Palette */}
             <Navbar />
             <CommandPalette />
 
-            {/* Sections */}
+            {/* Sections — heavy ones are lazy-loaded */}
             <main className="relative z-[1]">
               <HeroSection />
               <MetricsSection />
               <CapabilitiesSection />
-              <SkillsSection />
-              <AgentsSection />
-              <StatusSection />
-              <ServicesSection />
-              <ActionsSection />
-              <AnalyticsSection />
-              <PerformanceSection />
-              <TimelineSection />
-              <TerminalSection />
-              <ChatSection />
-              <DownloadSection />
-              <IntegrationsSection />
+              <LazySection><SkillsSection /></LazySection>
+              <LazySection><AgentsSection /></LazySection>
+              <LazySection><StatusSection /></LazySection>
+              <LazySection><ServicesSection /></LazySection>
+              <LazySection><ActionsSection /></LazySection>
+              <LazySection><AnalyticsSection /></LazySection>
+              <LazySection><PerformanceSection /></LazySection>
+              <LazySection><TimelineSection /></LazySection>
+              <LazySection><TerminalSection /></LazySection>
+              <LazySection><ChatSection /></LazySection>
+              <LazySection><DownloadSection /></LazySection>
+              <LazySection><IntegrationsSection /></LazySection>
               <Footer />
             </main>
           </div>
