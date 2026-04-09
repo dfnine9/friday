@@ -7,6 +7,7 @@ import CommandPalette from "@/components/CommandPalette";
 import Navbar from "@/components/Navbar";
 
 // Tab components — only the active one renders
+import VoiceTab from "@/components/tabs/VoiceTab";
 import ChatTab from "@/components/tabs/ChatTab";
 import OverviewTab from "@/components/tabs/OverviewTab";
 import AgentsTab from "@/components/tabs/AgentsTab";
@@ -14,6 +15,7 @@ import AnalyticsTab from "@/components/tabs/AnalyticsTab";
 import ToolsTab from "@/components/tabs/ToolsTab";
 
 const TAB_COMPONENTS: Record<string, React.ComponentType> = {
+  voice: VoiceTab,
   chat: ChatTab,
   overview: OverviewTab,
   agents: AgentsTab,
@@ -22,8 +24,8 @@ const TAB_COMPONENTS: Record<string, React.ComponentType> = {
 };
 
 export default function FridayDashboard() {
-  const [activeTab, setActiveTab] = useState("chat");
-  const ActiveTabComponent = TAB_COMPONENTS[activeTab] || ChatTab;
+  const [activeTab, setActiveTab] = useState("voice");
+  const ActiveTabComponent = TAB_COMPONENTS[activeTab] || VoiceTab;
 
   return (
     <ToastProvider>

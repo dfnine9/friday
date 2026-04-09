@@ -1,11 +1,12 @@
 "use client";
 
-import { MessageCircle, LayoutDashboard, Cpu, BarChart3, Zap } from "lucide-react";
+import { Mic, MessageCircle, LayoutDashboard, Cpu, BarChart3, Zap } from "lucide-react";
 import { TABS } from "@/data/friday-data";
 import ArcReactorLogo from "./ArcReactorLogo";
 import clsx from "clsx";
 
 const ICON_MAP: Record<string, React.ReactNode> = {
+  mic: <Mic className="w-4 h-4" />,
   "message-circle": <MessageCircle className="w-4 h-4" />,
   "layout-dashboard": <LayoutDashboard className="w-4 h-4" />,
   cpu: <Cpu className="w-4 h-4" />,
