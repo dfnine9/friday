@@ -1,13 +1,13 @@
 "use client";
 
-import { Hexagon } from "lucide-react";
+import ArcReactorLogo from "./ArcReactorLogo";
 
 export default function Footer() {
   return (
     <footer className="section border-t border-white/[0.04]">
       <div className="section-inner text-center">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/15 border border-primary/20 mb-4">
-          <Hexagon className="w-6 h-6 text-primary" strokeWidth={2} />
+        <div className="mb-4 flex justify-center">
+          <ArcReactorLogo size="lg" />
         </div>
         <h3 className="text-lg font-bold text-text-primary mb-1">F.R.I.D.A.Y.</h3>
         <p className="text-xs text-text-muted mb-6">

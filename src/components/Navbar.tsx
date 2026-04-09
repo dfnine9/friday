@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Hexagon } from "lucide-react";
 import { NAV_SECTIONS } from "@/data/friday-data";
+import ArcReactorLogo from "./ArcReactorLogo";
 import clsx from "clsx";
 
 export default function Navbar() {
@@ -49,9 +49,7 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
         <a href="#hero" className="flex items-center gap-2.5 shrink-0">
-          <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/25 flex items-center justify-center">
-            <Hexagon className="w-4 h-4 text-primary" strokeWidth={2} />
-          </div>
+          <ArcReactorLogo size="sm" />
           <span className="text-sm font-bold text-text-primary tracking-tight">
             F.R.I.D.A.Y.
           </span>

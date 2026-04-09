@@ -229,6 +229,55 @@ html {
   box-shadow: 0 0 0 3px rgba(234, 33, 67, 0.2);
 }
 
+/* ═══ ARC REACTOR LOGO ═══ */
+@keyframes reactor-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes reactor-spin-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+@keyframes reactor-pulse-core {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(245, 166, 35, 0.6), 0 0 60px rgba(245, 166, 35, 0.3), 0 0 100px rgba(245, 166, 35, 0.1);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(245, 166, 35, 0.8), 0 0 80px rgba(245, 166, 35, 0.4), 0 0 120px rgba(245, 166, 35, 0.15);
+    transform: scale(1.08);
+  }
+}
+@keyframes reactor-flicker {
+  0%, 100% { opacity: 0.7; }
+  25% { opacity: 0.9; }
+  50% { opacity: 0.6; }
+  75% { opacity: 1; }
+}
+@keyframes reactor-particle {
+  0% { transform: rotate(var(--start-angle)) translateX(var(--orbit-radius)); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: rotate(calc(var(--start-angle) + 360deg)) translateX(var(--orbit-radius)); opacity: 0; }
+}
+@keyframes reactor-filament-pulse {
+  0%, 100% { opacity: 0.15; transform: scaleY(0.9); }
+  50% { opacity: 0.4; transform: scaleY(1.1); }
+}
+@keyframes reactor-ring-tilt {
+  0%, 100% { transform: rotateX(60deg) rotateZ(0deg); }
+  50% { transform: rotateX(65deg) rotateZ(180deg); }
+}
+@keyframes reactor-ring-tilt-2 {
+  0%, 100% { transform: rotateX(70deg) rotateY(30deg) rotateZ(0deg); }
+  50% { transform: rotateX(75deg) rotateY(30deg) rotateZ(-180deg); }
+}
+@keyframes reactor-energy-wave {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 0; }
+  100% { transform: scale(0.8); opacity: 0.5; }
+}
+
 /* ═══ ANIMATIONS ═══ */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(16px); }

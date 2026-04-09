@@ -1,15 +1,16 @@
 "use client";
 
-import { Hexagon, ChevronDown, Cpu, Activity, Terminal, Bot } from "lucide-react";
+import { ChevronDown, Cpu, Activity, Terminal, Bot } from "lucide-react";
 import { FRIDAY_META } from "@/data/friday-data";
+import ArcReactorLogo from "./ArcReactorLogo";
 
 export default function HeroSection() {
   return (
     <section id="hero" className="relative min-h-screen flex items-center justify-center">
       <div className="section-inner text-center">
-        {/* Logo */}
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary/15 border border-primary/20 mb-8 animate-float">
-          <Hexagon className="w-10 h-10 text-primary" strokeWidth={1.5} />
+        {/* Arc Reactor Logo */}
+        <div className="mb-10 flex justify-center">
+          <ArcReactorLogo size="hero" />
         </div>
 
         {/* Title */}
