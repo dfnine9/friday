@@ -40,7 +40,14 @@ export default function FridayDashboard() {
     <ToastProvider>
       <AgentModalProvider>
         <div className="relative dot-grid cosmic-bg h-screen overflow-hidden" suppressHydrationWarning>
-          {/* Nebula is pure CSS — no JS blobs needed */}
+          {/* Flickering stars */}
+          {Array.from({ length: 18 }).map((_, i) => (
+            <div key={`star-${i}`} className="star" />
+          ))}
+          {/* Shooting stars */}
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={`shoot-${i}`} className="shooting-star" />
+          ))}
 
           {/* Always-visible navigation */}
           <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
