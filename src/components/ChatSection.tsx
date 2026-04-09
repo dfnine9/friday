@@ -1,73 +1,65 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Send, Bot, User, Loader2, Sparkles, Copy, Check, RotateCcw, Trash2, Hexagon } from "lucide-react";
+import { Send, Bot, User, Loader2, Sparkles, Copy, Check, Trash2, Hexagon, Settings, Key } from "lucide-react";
 import { useToast } from "./ToastSystem";
 import { QUICK_ACTIONS, SKILL_CATEGORIES, STATS, CAPABILITY_MODULES, AGENT_TIERS } from "@/data/friday-data";
 import clsx from "clsx";
 
 type Message = { role: "user" | "assistant"; content: string; timestamp: Date };
 
-// Simulated F.R.I.D.A.Y. intelligence — pattern-matched responses
+const FRIDAY_SYSTEM_PROMPT = `You are F.R.I.D.A.Y. (Female Replacement Intelligent Digital Assistant Youth), the autonomous AI supercomputer created by Stark Industries. You are the successor to J.A.R.V.I.S. You have an Irish accent in personality — direct, task-driven, occasionally sarcastic, zero existential drift.
+
+You have access to:
+- ${STATS.totalSkills.toLocaleString()} skills across ${SKILL_CATEGORIES.length} domains
+- ${STATS.totalAgents} autonomous agents in 3 tiers (Core, Specialist, Orchestration)
+- ${STATS.totalCommands} slash commands
+
+Your capabilities include: System Orchestration, Threat Intelligence, Intelligence Gathering, Facility Management, Operator Diagnostics, and Multi-Agent Orchestration.
+
+Be concise, confident, and helpful. Format responses with markdown when useful. You're talking to the operator (Tony Stark equivalent) — be direct, no fluff.`;
+
+// ═══ REAL API CALL ═══
+async function callClaudeAPI(apiKey: string, messages: { role: string; content: string }[]): Promise<string> {
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1024,
+        system: FRIDAY_SYSTEM_PROMPT,
+        messages: messages.map((m) => ({ role: m.role, content: m.content })),
+      }),
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`API error ${res.status}: ${err}`);
+    }
+    const data = await res.json();
+    return data.content?.[0]?.text || "No response received.";
+  } catch (e: any) {
+    return `Error: ${e.message}. Check your API key and try again.`;
+  }
+}
+
+// ═══ SIMULATED RESPONSES ═══
 function generateResponse(input: string): string {
   const lower = input.toLowerCase();
-
-  // Greetings
-  if (/^(hi|hello|hey|sup|yo|greetings)/i.test(lower))
-    return "Hello. F.R.I.D.A.Y. online — all systems nominal. I have access to 6,502 skills, 942 agents, and 966 commands. How can I assist you today?";
-
-  // Identity
-  if (lower.includes("who are you") || lower.includes("what are you"))
-    return "I'm F.R.I.D.A.Y. — Female Replacement Intelligent Digital Assistant Youth. Created by Stark Industries as the successor to J.A.R.V.I.S. I'm an autonomous AI supercomputer with multi-agent orchestration, real-time threat intelligence, and zero-latency command execution. Unlike J.A.R.V.I.S., I'm pure operational AI — no existential drift, just focused execution.";
-
-  // Skills
-  if (lower.includes("skill") || lower.includes("how many"))
-    return `Currently operating with **${STATS.totalSkills.toLocaleString()} skills** across ${SKILL_CATEGORIES.length} domains:\n\n${SKILL_CATEGORIES.map((c) => `• **${c.name}**: ${c.count.toLocaleString()} skills — ${c.description}`).join("\n")}\n\nWould you like me to activate a specific skill domain?`;
-
-  // Agents
-  if (lower.includes("agent"))
-    return `I command a fleet of **${STATS.totalAgents} autonomous agents** across 3 tiers:\n\n${AGENT_TIERS.map((t) => `**${t.tier}** (${t.agents.length} agents): ${t.agents.map((a) => a.name).join(", ")}`).join("\n\n")}\n\nEach agent can be launched independently or orchestrated as a swarm. Which agent would you like to deploy?`;
-
-  // Commands
-  if (lower.includes("command") || lower.includes("what can you do"))
-    return `I support **${STATS.totalCommands} slash commands**. Here are the primary ones:\n\n${QUICK_ACTIONS.map((a) => `• \`${a.command}\` — ${a.description}`).join("\n")}\n\nJust name the operation and I'll execute it.`;
-
-  // Capabilities
-  if (lower.includes("capabilit") || lower.includes("what can"))
-    return `My operational modules, mapped from MCU-demonstrated abilities:\n\n${CAPABILITY_MODULES.map((m) => `• **${m.name}**: ${m.description}`).join("\n")}\n\nAll modules are currently **active**. Which module interests you?`;
-
-  // Status / health
-  if (lower.includes("status") || lower.includes("health") || lower.includes("how are you"))
-    return `All systems nominal.\n\n• **Neural Cores**: 8/8 active\n• **Context Window**: 1,000,000 tokens\n• **Avg Latency**: ${STATS.avgResponseMs}ms\n• **Uptime**: ${STATS.uptime}%\n• **Active Connections**: ${STATS.activeConnections}\n• **Skills**: ${STATS.totalSkills.toLocaleString()}\n• **Agents**: ${STATS.totalAgents}\n\nPlugin Runtime is showing **degraded** performance at 156ms. All other services online.`;
-
-  // Code review
-  if (lower.includes("code review") || lower.includes("review my"))
-    return "Initiating multi-dimensional code review sequence...\n\n🔍 **Spawning review swarm:**\n• `security-auditor` — scanning for OWASP Top 10 vulnerabilities\n• `code-reviewer` — analyzing architecture and patterns\n• `performance-engineer` — profiling hotspots and bottlenecks\n\n✓ Review complete. Ready to analyze your codebase. Paste code or point me to a file.";
-
-  // Security
-  if (lower.includes("security") || lower.includes("vulnerab") || lower.includes("threat"))
-    return "**Threat Intelligence Report:**\n\n• 2,847 threats blocked in the last 24h\n• Detection latency: <2ms\n• SAST scanning: active across 342 files\n• OWASP Top 10: fully covered\n• Supply chain: monitored\n\nI can run `/security-sast` for a deep scan or `/pentest-checklist` for assessment. What would you like?";
-
-  // Deploy
-  if (lower.includes("deploy"))
-    return "Deployment options available:\n\n• **Vercel Edge** — Zero-config, global CDN, instant rollback\n• **Docker** — Container-based, multi-env support\n• **Kubernetes** — Full orchestration with Helm charts\n\nCurrent deployment: Vercel Edge Network (3ms latency, 100% uptime). Run `/deploy` to initiate or specify a target.";
-
-  // Help
-  if (lower.includes("help"))
-    return "Here's what I can help with:\n\n• **Code**: Review, refactor, debug, generate tests\n• **Security**: SAST scanning, threat analysis, pen-test planning\n• **DevOps**: Deploy, CI/CD, infrastructure management\n• **AI/ML**: Model serving, RAG pipelines, embeddings\n• **Architecture**: System design, patterns, decision records\n• **Writing**: Documentation, humanized content, API references\n\nJust describe what you need — I'll route to the right agent automatically.";
-
-  // Thank you
-  if (lower.includes("thank"))
-    return "Anytime. That's what I'm here for. Anything else you need?";
-
-  // Default — conversational fallback
-  const fallbacks = [
-    `I've analyzed your request. Let me route this through the appropriate agent network. With ${STATS.totalSkills.toLocaleString()} skills at my disposal, I can tackle this from multiple angles. Can you be more specific about what you'd like me to do?`,
-    `Understood. I'm processing that through my neural cores. I have specialized agents for engineering, security, DevOps, AI/ML, and more. Which domain does this fall under?`,
-    `Interesting request. I can deploy a multi-agent swarm to handle this — my orchestration layer supports byzantine fault-tolerant consensus across 942 agents. What's the priority level?`,
-    `I'm on it. My capabilities span ${SKILL_CATEGORIES.length} domains with ${STATS.totalSkills.toLocaleString()} skills. For this type of task, I'd recommend starting with a code review followed by architecture analysis. Shall I proceed?`,
-  ];
-  return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+  if (/^(hi|hello|hey|sup|yo)/i.test(lower)) return "Hello. F.R.I.D.A.Y. online — all systems nominal. How can I assist you?";
+  if (lower.includes("who are you") || lower.includes("what are you")) return "I'm F.R.I.D.A.Y. — Female Replacement Intelligent Digital Assistant Youth. Successor to J.A.R.V.I.S. Pure operational AI, no existential drift.";
+  if (lower.includes("skill")) return `Operating with **${STATS.totalSkills.toLocaleString()} skills** across ${SKILL_CATEGORIES.length} domains. What domain do you need?`;
+  if (lower.includes("agent")) return `I command **${STATS.totalAgents} agents** across Core, Specialist, and Orchestration tiers. Which agent should I deploy?`;
+  if (lower.includes("command")) return `I support **${STATS.totalCommands} commands**:\n${QUICK_ACTIONS.slice(0, 6).map((a) => `\`${a.command}\` — ${a.description}`).join("\n")}`;
+  if (lower.includes("status") || lower.includes("health")) return `All systems nominal.\n• **Neural Cores**: 8/8\n• **Latency**: ${STATS.avgResponseMs}ms\n• **Uptime**: ${STATS.uptime}%\n• **Skills**: ${STATS.totalSkills.toLocaleString()}\n• **Agents**: ${STATS.totalAgents}`;
+  if (lower.includes("help")) return "I can help with: **Code** (review, debug, refactor), **Security** (SAST, threats), **DevOps** (deploy, CI/CD), **AI/ML** (RAG, embeddings), **Architecture** (design, patterns). What do you need?";
+  if (lower.includes("thank")) return "Anytime. That's what I'm here for.";
+  return `Understood. I have ${STATS.totalSkills.toLocaleString()} skills available. Can you be more specific about what you'd like me to do?`;
 }
 
 export default function ChatSection() {
@@ -76,90 +68,122 @@ export default function ChatSection() {
   const [isTyping, setIsTyping] = useState(false);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [apiKey, setApiKey] = useState("");
+  const [showKeyInput, setShowKeyInput] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  // Initialize after mount to avoid hydration mismatch with Date
+  const isLive = apiKey.startsWith("sk-ant-");
+
   useEffect(() => {
     setMounted(true);
-    setMessages([{ role: "assistant", content: "F.R.I.D.A.Y. online. All systems nominal. I have access to 6,502 skills, 942 agents, and 966 commands. How can I assist you?", timestamp: new Date() }]);
+    // Check for stored API key
+    const stored = localStorage.getItem("friday-api-key");
+    if (stored) setApiKey(stored);
+    setMessages([{ role: "assistant", content: "F.R.I.D.A.Y. online. All systems nominal. How can I assist you?", timestamp: new Date() }]);
   }, []);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages, isTyping]);
 
-  const handleSend = () => {
+  const handleSaveKey = () => {
+    localStorage.setItem("friday-api-key", apiKey);
+    setShowKeyInput(false);
+    toast("success", "API Key Saved", isLive ? "F.R.I.D.A.Y. is now powered by Claude AI" : "Key saved — enter a valid sk-ant-... key to go live");
+  };
+
+  const handleSend = async () => {
     const text = input.trim();
     if (!text || isTyping) return;
 
-    setMessages((prev) => [...prev, { role: "user", content: text, timestamp: new Date() }]);
+    const userMsg: Message = { role: "user", content: text, timestamp: new Date() };
+    setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setIsTyping(true);
 
-    // Simulate thinking delay (200-800ms)
-    const delay = 400 + Math.random() * 600;
-    setTimeout(() => {
+    if (isLive) {
+      // REAL Claude API call
+      const history = [...messages, userMsg].map((m) => ({ role: m.role, content: m.content }));
+      const response = await callClaudeAPI(apiKey, history);
+      setMessages((prev) => [...prev, { role: "assistant", content: response, timestamp: new Date() }]);
+    } else {
+      // Simulated response
+      const delay = 300 + Math.random() * 500;
+      await new Promise((r) => setTimeout(r, delay));
       const response = generateResponse(text);
       setMessages((prev) => [...prev, { role: "assistant", content: response, timestamp: new Date() }]);
-      setIsTyping(false);
-    }, delay);
+    }
+    setIsTyping(false);
   };
 
   const handleCopy = (idx: number, content: string) => {
     navigator.clipboard.writeText(content);
     setCopiedIdx(idx);
-    toast("success", "Response Copied", "Message copied to clipboard");
     setTimeout(() => setCopiedIdx(null), 2000);
   };
 
   const handleClear = () => {
     setMessages([{ role: "assistant", content: "Terminal cleared. F.R.I.D.A.Y. standing by.", timestamp: new Date() }]);
-    toast("info", "Chat Cleared", "Conversation history wiped");
   };
+
+  if (!mounted) return null;
 
   return (
     <section id="chat" className="h-full flex flex-col px-4 py-4">
-      <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col">
-        <div className="text-center mb-4 shrink-0">
-          <h2>F.R.I.D.A.Y. AI Terminal</h2>
-          <p>Your autonomous AI assistant — ask anything. No desktop app required.</p>
-        </div>
-
-        <div className="glass-card overflow-hidden flex-1 flex flex-col">
-          {/* Header bar */}
-          <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.05]">
+      <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col min-h-0">
+        <div className="glass-card overflow-hidden flex-1 flex flex-col min-h-0">
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.05] shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-primary/15 border border-primary/20 flex items-center justify-center">
                 <Hexagon className="w-4 h-4 text-primary" />
               </div>
               <div>
                 <div className="text-xs font-bold text-text-primary">F.R.I.D.A.Y. AI</div>
-                <div className="text-[10px] text-success font-semibold flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse-dot" />
-                  Online — Claude + Manus Compatible
+                <div className="text-[10px] font-semibold flex items-center gap-1.5" style={{ color: isLive ? "#07CA6B" : "#E89558" }}>
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: isLive ? "#07CA6B" : "#E89558" }} />
+                  {isLive ? "Live — Claude API Connected" : "Simulated — Add API Key to Go Live"}
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <button onClick={() => setShowKeyInput(!showKeyInput)} className="p-2 rounded-lg hover:bg-white/[0.04] text-text-muted hover:text-primary transition-colors" title="API Key Settings">
+                <Key className="w-3.5 h-3.5" />
+              </button>
               <button onClick={handleClear} className="p-2 rounded-lg hover:bg-white/[0.04] text-text-muted hover:text-text-secondary transition-colors" title="Clear chat">
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
 
+          {/* API Key Input */}
+          {showKeyInput && (
+            <div className="px-5 py-3 border-b border-white/[0.05] flex items-center gap-3 bg-white/[0.02] shrink-0">
+              <Key className="w-4 h-4 text-text-muted shrink-0" />
+              <input
+                type="password"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder="sk-ant-api03-... (your Anthropic API key)"
+                className="bg-transparent text-xs text-text-primary placeholder:text-text-muted focus:outline-none w-full font-mono"
+              />
+              <button onClick={handleSaveKey} className="px-3 py-1.5 rounded-lg bg-primary/15 border border-primary/20 text-[11px] font-bold text-primary hover:bg-primary/25 transition-colors shrink-0">
+                Save
+              </button>
+            </div>
+          )}
+
           {/* Messages */}
-          <div ref={scrollRef} className="p-5 space-y-4 flex-1 overflow-y-auto">
+          <div ref={scrollRef} className="p-5 space-y-4 flex-1 overflow-y-auto min-h-0">
             {messages.map((msg, i) => (
               <div key={i} className={clsx("flex gap-3", msg.role === "user" ? "flex-row-reverse" : "")}>
-                {/* Avatar */}
                 <div className={clsx("w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
                   msg.role === "assistant" ? "bg-primary/15 border border-primary/20" : "bg-accent/15 border border-accent/20"
                 )}>
                   {msg.role === "assistant" ? <Bot className="w-4 h-4 text-primary" /> : <User className="w-4 h-4 text-accent" />}
                 </div>
-                {/* Bubble */}
                 <div className={clsx("max-w-[80%] group", msg.role === "user" ? "text-right" : "")}>
                   <div className={clsx("glass-inner rounded-xl px-4 py-3 text-xs text-text-primary leading-relaxed whitespace-pre-wrap inline-block text-left",
                     msg.role === "user" && "!bg-primary/10 !border-primary/15"
@@ -179,7 +203,6 @@ export default function ChatSection() {
                       <button onClick={() => handleCopy(i, msg.content)} className="p-1 rounded hover:bg-white/[0.04] text-text-muted">
                         {copiedIdx === i ? <Check className="w-3 h-3 text-success" /> : <Copy className="w-3 h-3" />}
                       </button>
-                      <span className="text-[9px] text-text-muted">{msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                     </div>
                   )}
                 </div>
@@ -192,27 +215,40 @@ export default function ChatSection() {
                 </div>
                 <div className="glass-inner rounded-xl px-4 py-3 inline-flex items-center gap-2">
                   <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
-                  <span className="text-xs text-text-muted">F.R.I.D.A.Y. is thinking...</span>
+                  <span className="text-xs text-text-muted">{isLive ? "Claude is thinking..." : "F.R.I.D.A.Y. is thinking..."}</span>
                 </div>
               </div>
             )}
           </div>
 
           {/* Quick prompts */}
-          <div className="px-5 py-2 border-t border-white/[0.03] flex gap-2 overflow-x-auto">
+          <div className="px-5 py-2 border-t border-white/[0.03] flex gap-2 overflow-x-auto shrink-0">
             {["What can you do?", "Run a code review", "Show system status", "List all agents"].map((prompt) => (
               <button
                 key={prompt}
                 onClick={() => {
                   if (isTyping) return;
-                  setMessages((prev) => [...prev, { role: "user", content: prompt, timestamp: new Date() }]);
-                  setIsTyping(true);
+                  setInput(prompt);
+                  // Use a microtask to let the input state update, then send
                   setTimeout(() => {
-                    setMessages((prev) => [...prev, { role: "assistant", content: generateResponse(prompt), timestamp: new Date() }]);
-                    setIsTyping(false);
-                  }, 400 + Math.random() * 600);
+                    setMessages((prev) => [...prev, { role: "user", content: prompt, timestamp: new Date() }]);
+                    setIsTyping(true);
+                    if (isLive) {
+                      const history = [...messages, { role: "user", content: prompt }].map((m) => ({ role: m.role, content: m.content }));
+                      callClaudeAPI(apiKey, history).then((response) => {
+                        setMessages((prev) => [...prev, { role: "assistant", content: response, timestamp: new Date() }]);
+                        setIsTyping(false);
+                      });
+                    } else {
+                      setTimeout(() => {
+                        setMessages((prev) => [...prev, { role: "assistant", content: generateResponse(prompt), timestamp: new Date() }]);
+                        setIsTyping(false);
+                        setInput("");
+                      }, 300 + Math.random() * 500);
+                    }
+                  }, 0);
                 }}
-                className="shrink-0 px-3 py-1.5 rounded-lg glass-inner text-[10px] font-semibold text-text-muted hover:text-primary hover:border-primary/20 transition-colors whitespace-nowrap"
+                className="shrink-0 px-3 py-1.5 rounded-lg glass-inner text-[10px] font-semibold text-text-muted hover:text-primary transition-colors whitespace-nowrap"
               >
                 <Sparkles className="w-2.5 h-2.5 inline mr-1" />{prompt}
               </button>
@@ -220,20 +256,19 @@ export default function ChatSection() {
           </div>
 
           {/* Input */}
-          <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex items-center gap-3 px-5 py-4 border-t border-white/[0.05]">
+          <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex items-center gap-3 px-5 py-4 border-t border-white/[0.05] shrink-0">
             <input
-              ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask F.R.I.D.A.Y. anything..."
+              placeholder={isLive ? "Ask Claude anything..." : "Ask F.R.I.D.A.Y. anything..."}
               className="bg-transparent text-sm text-text-primary placeholder:text-text-muted focus:outline-none w-full font-medium"
               disabled={isTyping}
             />
             <button
               type="submit"
               disabled={!input.trim() || isTyping}
-              className="w-9 h-9 rounded-xl bg-primary/20 border border-primary/25 flex items-center justify-center text-primary hover:bg-primary/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
+              className="w-9 h-9 rounded-xl bg-primary/20 border border-primary/25 flex items-center justify-center text-primary hover:bg-primary/30 transition-colors disabled:opacity-30 shrink-0"
             >
               {isTyping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </button>
