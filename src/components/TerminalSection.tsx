@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { QUICK_ACTIONS } from "@/data/friday-data";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { TERMINAL_LINES, QUICK_ACTIONS } from "@/data/friday-data";
 import clsx from "clsx";
 
 type Line = { type: "input" | "output" | "success" | "error"; text: string };
@@ -52,25 +52,44 @@ QUICK_ACTIONS.forEach((a) => {
   }
 });
 
-// Static boot log — rendered once, no animation, no setInterval
-const BOOT_LOG: Line[] = [
-  { type: "output", text: "F.R.I.D.A.Y. v2.0 initialized" },
-  { type: "output", text: "Neural cores: 8/8 online | Skills: 6,502 | Agents: 942" },
-  { type: "success", text: "✓ All systems nominal. Type /help for commands." },
-];
-
 export default function TerminalSection() {
-  const [lines, setLines] = useState<Line[]>(BOOT_LOG);
+  // Boot animation: show N lines from TERMINAL_LINES using a single counter
+  // No setInterval, no array copies per tick — just a number that increments
+  const [bootIndex, setBootIndex] = useState(0);
+  const [bootDone, setBootDone] = useState(false);
+  const [userLines, setUserLines] = useState<Line[]>([]);
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<string[]>([]);
   const [historyIdx, setHistoryIdx] = useState(-1);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const bootTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Scroll to bottom when lines change — NO smooth behavior (causes layout thrash)
+  // Boot animation using chained setTimeout (not setInterval)
+  // Each tick only increments a counter — the actual lines come from
+  // slicing the static TERMINAL_LINES array, zero array copies
+  useEffect(() => {
+    if (bootDone) return;
+    if (bootIndex >= TERMINAL_LINES.length) {
+      setBootDone(true);
+      return;
+    }
+    bootTimerRef.current = setTimeout(() => {
+      setBootIndex((prev) => prev + 1);
+    }, 200);
+    return () => {
+      if (bootTimerRef.current) clearTimeout(bootTimerRef.current);
+    };
+  }, [bootIndex, bootDone]);
+
+  // Scroll to bottom when content changes
   useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [lines]);
+  }, [bootIndex, userLines]);
+
+  // Derive visible lines from bootIndex + userLines (no state duplication)
+  const visibleBootLines = TERMINAL_LINES.slice(0, bootIndex);
+  const allLines = [...visibleBootLines, ...userLines];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,25 +99,27 @@ export default function TerminalSection() {
     setHistory((prev) => [cmd, ...prev.slice(0, 19)]);
     setHistoryIdx(-1);
     setInput("");
-    setLines((prev) => [...prev, { type: "input", text: cmd }]);
+
+    const inputLine: Line = { type: "input", text: cmd };
 
     if (cmd === "/clear") {
-      setTimeout(() => setLines([{ type: "success", text: "Terminal cleared." }]), 50);
+      setUserLines([{ type: "success", text: "Terminal cleared." }]);
+      setBootIndex(0);
+      setBootDone(true); // Don't replay boot
       return;
     }
 
     const response = COMMAND_RESPONSES[cmd];
     if (response) {
-      // Add all response lines at once (single state update, not 15 setIntervals)
-      setTimeout(() => setLines((prev) => [...prev, ...response]), 100);
+      // Single state update with all response lines
+      setUserLines((prev) => [...prev, inputLine, ...response]);
     } else {
-      setTimeout(() => {
-        setLines((prev) => [
-          ...prev,
-          { type: "error", text: `Unknown command: ${cmd}` },
-          { type: "output", text: 'Type "/help" for available commands.' },
-        ]);
-      }, 100);
+      setUserLines((prev) => [
+        ...prev,
+        inputLine,
+        { type: "error", text: `Unknown command: ${cmd}` },
+        { type: "output", text: 'Type "/help" for available commands.' },
+      ]);
     }
   };
 
@@ -135,11 +156,13 @@ export default function TerminalSection() {
               <div className="w-3 h-3 rounded-full bg-success/60" />
             </div>
             <span className="text-[10px] text-text-muted font-mono ml-3">friday@stark-tower ~ %</span>
-            <span className="text-[10px] text-success/60 ml-auto font-mono">READY</span>
+            <span className="text-[10px] font-mono ml-auto" style={{ color: bootDone ? "#07CA6B" : "#E89558" }}>
+              {bootDone ? "READY" : "BOOTING..."}
+            </span>
           </div>
           {/* Body */}
           <div ref={scrollRef} className="p-5 font-mono text-xs space-y-1 min-h-[280px] max-h-[360px] overflow-y-auto">
-            {lines.map((line, i) => (
+            {allLines.map((line, i) => (
               <div key={i} className={clsx(
                 line.type === "input" && "text-primary font-bold",
                 line.type === "output" && "text-text-secondary",
@@ -150,22 +173,30 @@ export default function TerminalSection() {
                 {line.text}
               </div>
             ))}
+            {!bootDone && (
+              <div className="flex items-center gap-1">
+                <span className="text-text-muted">$</span>
+                <div className="w-2 h-4 bg-primary animate-pulse" />
+              </div>
+            )}
           </div>
-          {/* Input */}
-          <form onSubmit={handleSubmit} className="flex items-center gap-2 px-5 py-3 border-t border-white/[0.05]">
-            <span className="text-text-muted font-mono text-xs">$</span>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Type a command... (/help for list)"
-              className="bg-transparent text-xs text-primary font-mono font-bold placeholder:text-text-muted focus:outline-none w-full"
-              autoComplete="off"
-              spellCheck={false}
-            />
-            <kbd className="text-[9px] text-text-muted font-mono px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.06]">TAB</kbd>
-          </form>
+          {/* Input — only shown after boot */}
+          {bootDone && (
+            <form onSubmit={handleSubmit} className="flex items-center gap-2 px-5 py-3 border-t border-white/[0.05]">
+              <span className="text-text-muted font-mono text-xs">$</span>
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Type a command... (/help for list)"
+                className="bg-transparent text-xs text-primary font-mono font-bold placeholder:text-text-muted focus:outline-none w-full"
+                autoComplete="off"
+                spellCheck={false}
+              />
+              <kbd className="text-[9px] text-text-muted font-mono px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.06]">TAB</kbd>
+            </form>
+          )}
         </div>
       </div>
     </section>
