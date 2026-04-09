@@ -56,45 +56,33 @@ export function StatCard({
   icon?: ReactNode;
 }) {
   return (
-    <GlassCard className="relative overflow-hidden group">
-      {/* Subtle corner accent */}
+    <GlassCard className="relative overflow-hidden group" luminous>
       <div
-        className="absolute -top-12 -right-12 w-28 h-28 rounded-full opacity-[0.04] group-hover:opacity-[0.08] transition-opacity duration-500"
+        className="absolute -top-12 -right-12 w-28 h-28 rounded-full opacity-[0.08] group-hover:opacity-[0.15] transition-opacity duration-500"
         style={{ background: color }}
       />
       <div className="relative">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-xs font-medium text-text-muted">
-            {label}
-          </span>
+          <span className="text-xs font-medium text-text-muted">{label}</span>
           {icon && (
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
-              style={{ background: `${color}0D` }}
+              style={{ background: `${color}18`, border: `1px solid ${color}25` }}
             >
               <div style={{ color }}>{icon}</div>
             </div>
           )}
         </div>
-        <div className="animate-count-up">
-          <span
-            className="text-[28px] font-bold tracking-tight leading-none"
-            style={{ color }}
-          >
-            {typeof value === "number" ? value.toLocaleString() : value}
-          </span>
-        </div>
+        <span className="text-[28px] font-bold tracking-tight leading-none block" style={{ color }}>
+          {typeof value === "number" ? value.toLocaleString() : value}
+        </span>
         <div className="flex items-center justify-between mt-2">
-          {sub && (
-            <p className="text-[11px] text-text-muted">{sub}</p>
-          )}
+          {sub && <p className="text-[11px] text-text-muted">{sub}</p>}
           {trend && (
             <span
               className={clsx(
                 "text-[11px] font-semibold px-2 py-0.5 rounded-full",
-                trend.positive
-                  ? "bg-success-dim text-success"
-                  : "bg-danger-dim text-danger"
+                trend.positive ? "bg-success/15 text-success" : "bg-danger/15 text-danger"
               )}
             >
               {trend.value}
@@ -106,40 +94,15 @@ export function StatCard({
   );
 }
 
-export function StatusBadge({
-  status,
-}: {
-  status: "online" | "degraded" | "offline";
-}) {
+export function StatusBadge({ status }: { status: "online" | "degraded" | "offline" }) {
   const config = {
-    online: {
-      dot: "status-online",
-      bg: "bg-success-dim",
-      text: "text-success",
-      label: "Online",
-    },
-    degraded: {
-      dot: "status-degraded",
-      bg: "bg-warning-dim",
-      text: "text-warning",
-      label: "Degraded",
-    },
-    offline: {
-      dot: "status-offline",
-      bg: "bg-danger-dim",
-      text: "text-danger",
-      label: "Offline",
-    },
+    online: { dot: "status-online", bg: "bg-success/10", text: "text-success", border: "border-success/20", label: "Online" },
+    degraded: { dot: "status-degraded", bg: "bg-warning/10", text: "text-warning", border: "border-warning/20", label: "Degraded" },
+    offline: { dot: "status-offline", bg: "bg-danger/10", text: "text-danger", border: "border-danger/20", label: "Offline" },
   };
   const c = config[status];
   return (
-    <span
-      className={clsx(
-        "inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-[11px] font-semibold",
-        c.bg,
-        c.text
-      )}
-    >
+    <span className={clsx("inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-[11px] font-semibold border", c.bg, c.text, c.border)}>
       <span className={c.dot} />
       {c.label}
     </span>
@@ -161,17 +124,13 @@ export function SectionHeader({
     <div className="flex items-start justify-between">
       <div className="flex items-center gap-3">
         {icon && (
-          <div className="w-10 h-10 rounded-xl bg-primary-dim flex items-center justify-center text-primary">
+          <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/20 flex items-center justify-center text-primary">
             {icon}
           </div>
         )}
         <div>
-          <h2 className="text-lg font-bold text-text-primary tracking-tight">
-            {title}
-          </h2>
-          {subtitle && (
-            <p className="text-xs text-text-muted mt-0.5">{subtitle}</p>
-          )}
+          <h2 className="text-lg font-bold text-text-primary tracking-tight">{title}</h2>
+          {subtitle && <p className="text-xs text-text-muted mt-0.5">{subtitle}</p>}
         </div>
       </div>
       {action}

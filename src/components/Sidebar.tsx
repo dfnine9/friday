@@ -39,9 +39,9 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       )}
     >
       {/* Logo */}
-      <div className="flex items-center gap-3 px-5 h-[72px] border-b border-black/[0.04] shrink-0">
+      <div className="flex items-center gap-3 px-5 h-[72px] border-b border-white/[0.05] shrink-0">
         <div className="relative shrink-0">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+          <div className="w-10 h-10 rounded-xl bg-primary/90 flex items-center justify-center shadow-lg shadow-primary/30 animate-breathe">
             <Hexagon className="w-5 h-5 text-white" strokeWidth={2} />
           </div>
         </div>
@@ -57,7 +57,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
         )}
       </div>
 
-      {/* Navigation */}
+      {/* Nav */}
       <nav className="flex-1 py-3 px-3 space-y-0.5">
         {!collapsed && (
           <span className="text-[10px] font-semibold text-text-muted uppercase tracking-widest px-3 mb-2 block">
@@ -74,22 +74,21 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
               className={clsx(
                 "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative",
                 isActive
-                  ? "bg-primary text-white shadow-md shadow-primary/20"
-                  : "text-text-secondary hover:text-text-primary hover:bg-black/[0.03]"
+                  ? "bg-primary/20 text-primary border border-primary/20 shadow-lg shadow-primary/10"
+                  : "text-text-secondary hover:text-text-primary hover:bg-white/[0.03] border border-transparent"
               )}
             >
               <Icon
                 className={clsx(
                   "w-[18px] h-[18px] shrink-0 transition-colors",
-                  isActive
-                    ? "text-white"
-                    : "text-text-muted group-hover:text-text-secondary"
+                  isActive ? "text-primary" : "text-text-muted group-hover:text-text-secondary"
                 )}
               />
               {!collapsed && (
-                <span className="text-[13px] font-semibold truncate">
-                  {item.label}
-                </span>
+                <span className="text-[13px] font-semibold truncate">{item.label}</span>
+              )}
+              {isActive && !collapsed && (
+                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary animate-pulse-dot" />
               )}
             </button>
           );
@@ -97,27 +96,23 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="px-3 pb-3 space-y-0.5 border-t border-black/[0.04] pt-3">
-        <button className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-text-muted hover:text-text-secondary hover:bg-black/[0.03] transition-colors">
+      <div className="px-3 pb-3 space-y-0.5 border-t border-white/[0.04] pt-3">
+        <button className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-text-muted hover:text-text-secondary hover:bg-white/[0.03] transition-colors">
           <HelpCircle className="w-[18px] h-[18px] shrink-0" />
           {!collapsed && <span className="text-[13px] font-medium">Documentation</span>}
         </button>
-        <button className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-text-muted hover:text-text-secondary hover:bg-black/[0.03] transition-colors">
+        <button className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-text-muted hover:text-text-secondary hover:bg-white/[0.03] transition-colors">
           <Settings className="w-[18px] h-[18px] shrink-0" />
           {!collapsed && <span className="text-[13px] font-medium">Settings</span>}
         </button>
       </div>
 
-      {/* Collapse toggle */}
+      {/* Collapse */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3.5 top-[80px] w-7 h-7 rounded-full bg-white border border-black/[0.08] shadow-sm flex items-center justify-center text-text-muted hover:text-primary hover:border-primary/20 transition-all z-30"
+        className="absolute -right-3.5 top-[80px] w-7 h-7 rounded-full glass-card !rounded-full flex items-center justify-center text-text-muted hover:text-primary transition-all z-30"
       >
-        {collapsed ? (
-          <ChevronRight className="w-3.5 h-3.5" />
-        ) : (
-          <ChevronLeft className="w-3.5 h-3.5" />
-        )}
+        {collapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
       </button>
     </aside>
   );
