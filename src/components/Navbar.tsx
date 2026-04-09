@@ -73,12 +73,21 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Status */}
-        <div className="flex items-center gap-2 shrink-0">
-          <div className="status-online animate-pulse-dot" style={{ width: 6, height: 6 }} />
-          <span className="text-[10px] font-bold text-success tracking-wide hidden sm:inline">
-            ONLINE
-          </span>
+        {/* Cmd+K + Status */}
+        <div className="flex items-center gap-3 shrink-0">
+          <button
+            onClick={() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg glass-inner text-[10px] font-bold text-text-muted hover:text-primary hover:border-primary/20 transition-colors border border-white/[0.05]"
+          >
+            <span>Search</span>
+            <kbd className="px-1 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] font-mono">⌘K</kbd>
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="status-online animate-pulse-dot" style={{ width: 6, height: 6 }} />
+            <span className="text-[10px] font-bold text-success tracking-wide hidden sm:inline">
+              ONLINE
+            </span>
+          </div>
         </div>
       </div>
     </nav>
