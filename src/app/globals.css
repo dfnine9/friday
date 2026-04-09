@@ -74,14 +74,18 @@ html {
 /* ═══ SECTION LAYOUT ═══ */
 .section {
   position: relative;
-  padding: 6rem 1.5rem;
+  padding: 5rem 1.5rem;
 }
 @media (min-width: 768px) {
-  .section { padding: 8rem 2rem; }
+  .section { padding: 6rem 2.5rem; }
+}
+@media (min-width: 1280px) {
+  .section { padding: 7rem 3rem; }
 }
 .section-inner {
-  max-width: 1320px;
+  max-width: 1440px;
   margin: 0 auto;
+  width: 100%;
 }
 .section-header {
   text-align: center;
@@ -249,7 +253,7 @@ html {
     90deg,
     transparent 0%,
     rgba(255,255,255,0.12) 25%,
-    rgba(245,166,35,0.2) 50%,
+    rgba(24,86,255,0.25) 50%,
     rgba(255,255,255,0.12) 75%,
     transparent 100%
   );
@@ -367,11 +371,11 @@ html {
 }
 @keyframes reactor-pulse-core {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(245, 166, 35, 0.6), 0 0 60px rgba(245, 166, 35, 0.3), 0 0 100px rgba(245, 166, 35, 0.1);
+    box-shadow: 0 0 20px rgba(24, 160, 255, 0.6), 0 0 60px rgba(24, 120, 255, 0.3), 0 0 100px rgba(24, 86, 255, 0.15);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 30px rgba(245, 166, 35, 0.8), 0 0 80px rgba(245, 166, 35, 0.4), 0 0 120px rgba(245, 166, 35, 0.15);
+    box-shadow: 0 0 30px rgba(24, 180, 255, 0.8), 0 0 80px rgba(24, 140, 255, 0.4), 0 0 120px rgba(24, 86, 255, 0.2);
     transform: scale(1.08);
   }
 }

@@ -27,7 +27,7 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
       <div
         className="absolute inset-0 rounded-full"
         style={{
-          background: "radial-gradient(circle, rgba(245,166,35,0.15) 0%, rgba(255,107,0,0.05) 50%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(24,160,255,0.2) 0%, rgba(24,86,255,0.08) 50%, transparent 70%)",
           filter: "blur(8px)",
           animation: "reactor-energy-wave 4s ease-in-out infinite",
         }}
@@ -53,14 +53,14 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
           </filter>
           {/* Gradient for rings */}
           <linearGradient id={`ring-grad-${size}`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ffd700" stopOpacity="0.8" />
-            <stop offset="50%" stopColor="#f5a623" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#ff6b00" stopOpacity="0.8" />
+            <stop offset="0%" stopColor="#18a0ff" stopOpacity="0.9" />
+            <stop offset="50%" stopColor="#1856FF" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#00d4ff" stopOpacity="0.8" />
           </linearGradient>
           <linearGradient id={`ring-grad-2-${size}`} x1="100%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#ff6b00" stopOpacity="0.6" />
-            <stop offset="50%" stopColor="#ffd700" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#f5a623" stopOpacity="0.7" />
+            <stop offset="0%" stopColor="#00d4ff" stopOpacity="0.6" />
+            <stop offset="50%" stopColor="#18a0ff" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#1856FF" stopOpacity="0.7" />
           </linearGradient>
         </defs>
 
@@ -73,7 +73,7 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
               cy={center}
               r={r}
               fill="none"
-              stroke="rgba(245,166,35,0.08)"
+              stroke="rgba(24,160,255,0.1)"
               strokeWidth={i === 0 ? 1.5 : 1}
             />
             {/* Animated arc segment */}
@@ -98,7 +98,7 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
               cy={center}
               r={r}
               fill="none"
-              stroke="rgba(255,215,0,0.2)"
+              stroke="rgba(24,160,255,0.2)"
               strokeWidth={0.8}
               strokeLinecap="round"
               strokeDasharray={`${Math.PI * r * 0.3} ${Math.PI * r * 1.7}`}
@@ -124,7 +124,7 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
             <line
               key={`f-${i}`}
               x1={x1} y1={y1} x2={x2} y2={y2}
-              stroke="rgba(245,166,35,0.2)"
+              stroke="rgba(24,160,255,0.25)"
               strokeWidth={0.5}
               style={{
                 transformOrigin: `${center}px ${center}px`,
@@ -149,7 +149,7 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
               cx={center + orbitR}
               cy={center}
               r={particleSize}
-              fill="#ffd700"
+              fill="#18a0ff"
               filter={`url(#glow-${size})`}
               style={{
                 transformOrigin: `${center}px ${center}px`,
@@ -168,7 +168,7 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
           cy={center}
           r={s.core + 2}
           fill="none"
-          stroke="rgba(245,166,35,0.3)"
+          stroke="rgba(24,160,255,0.4)"
           strokeWidth={1}
         />
         {/* Core glow */}
@@ -176,7 +176,7 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
           cx={center}
           cy={center}
           r={s.core}
-          fill="rgba(245,166,35,0.15)"
+          fill="rgba(24,160,255,0.2)"
           filter={`url(#glow-strong-${size})`}
         />
         {/* Core bright center */}
@@ -184,7 +184,7 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
           cx={center}
           cy={center}
           r={s.core * 0.6}
-          fill="#f5a623"
+          fill="#18a0ff"
           opacity={0.9}
           filter={`url(#glow-strong-${size})`}
         />
@@ -193,7 +193,7 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
           cx={center}
           cy={center}
           r={s.core * 0.3}
-          fill="#fff5d6"
+          fill="#d4f0ff"
           opacity={0.95}
         />
       </svg>
@@ -204,7 +204,7 @@ export default function ArcReactorLogo({ size = "md", className }: ArcReactorLog
         style={{
           width: s.core * 1.2,
           height: s.core * 1.2,
-          background: "radial-gradient(circle, rgba(255,245,214,0.4) 0%, rgba(245,166,35,0.2) 50%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(212,240,255,0.5) 0%, rgba(24,160,255,0.25) 50%, transparent 70%)",
           animation: "reactor-pulse-core 3s ease-in-out infinite",
         }}
       />

@@ -127,7 +127,7 @@ export default function ChatSection() {
           <p>Your autonomous AI assistant — ask anything. No desktop app required.</p>
         </div>
 
-        <div className="glass-card luminous-border shimmer-border overflow-hidden max-w-4xl mx-auto">
+        <div className="glass-card luminous-border shimmer-border overflow-hidden max-w-5xl mx-auto">
           {/* Header bar */}
           <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.05]">
             <div className="flex items-center gap-3">

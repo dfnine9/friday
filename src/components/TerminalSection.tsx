@@ -157,7 +157,7 @@ export default function TerminalSection() {
           <h2>Live Terminal</h2>
           <p>Interactive command interface. Type commands, get real responses. Try /help to start.</p>
         </div>
-        <div className="glass-card luminous-border shimmer-border overflow-hidden max-w-3xl mx-auto">
+        <div className="glass-card luminous-border shimmer-border overflow-hidden max-w-5xl mx-auto">
           {/* Title bar */}
           <div className="flex items-center gap-2 px-4 py-3 border-b border-white/[0.05]">
             <div className="flex gap-1.5">

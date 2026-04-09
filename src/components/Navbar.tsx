@@ -46,7 +46,7 @@ export default function Navbar() {
           : "py-4 bg-transparent"
       )}
     >
-      <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-between">
+      <div className="max-w-[1600px] mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
         <a href="#hero" className="flex items-center gap-2.5 shrink-0">
           <ArcReactorLogo size="sm" />
