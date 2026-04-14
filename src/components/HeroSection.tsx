@@ -23,7 +23,7 @@ export default function HeroSection() {
         <p className="text-sm text-text-muted max-w-xl mx-auto leading-relaxed mb-10">
           The autonomous AI supercomputer. Successor to J.A.R.V.I.S. with multi-agent
           orchestration, real-time threat intelligence, and zero-latency command execution
-          across 6,502 skills and 942 autonomous agents.
+          across 9,510 skills and 996 autonomous agents.
         </p>
 
         {/* Status */}
@@ -37,8 +37,8 @@ export default function HeroSection() {
           {[
             { label: "Neural Cores", value: "8", icon: <Cpu className="w-4 h-4" />, color: "#1856FF" },
             { label: "Context Window", value: "1M", icon: <Activity className="w-4 h-4" />, color: "#7c3aed" },
-            { label: "Skill Modules", value: "6,502", icon: <Terminal className="w-4 h-4" />, color: "#07CA6B" },
-            { label: "Agent Fleet", value: "942", icon: <Bot className="w-4 h-4" />, color: "#E89558" },
+            { label: "Skill Modules", value: "9,510", icon: <Terminal className="w-4 h-4" />, color: "#07CA6B" },
+            { label: "Agent Fleet", value: "996", icon: <Bot className="w-4 h-4" />, color: "#E89558" },
           ].map((m) => (
             <div key={m.label} className="glass-card p-4 text-center group">
               <div

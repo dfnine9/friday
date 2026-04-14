@@ -6,9 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "sidecar:dev": "cd sidecar && npx tsx server.ts",
+    "sidecar:install": "cd sidecar && npm install",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build"
   },
   "dependencies": {
+    "@anthropic-ai/claude-code": "^2.1.100",
+    "@tauri-apps/api": "^2.10.1",
     "@types/three": "^0.183.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.7.0",
@@ -20,6 +27,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@tauri-apps/cli": "^2.10.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

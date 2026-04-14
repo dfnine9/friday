@@ -25,7 +25,7 @@ function processCommand(cmd: string): Line[] {
       { type: "output", text: "" },
       { type: "output", text: "  /help              Show this help" },
       { type: "output", text: "  /commands           List all 966 commands" },
-      { type: "output", text: "  /agents            List all 932 agents" },
+      { type: "output", text: "  /agents            List all 996 agents" },
       { type: "output", text: "  /skills            List skill domains" },
       { type: "output", text: "  /status            System status" },
       { type: "output", text: "  /help <name>       Details on a command or agent" },

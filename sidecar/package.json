@@ -1,0 +1,21 @@
+{
+  "name": "friday-sidecar",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx tsx server.ts",
+    "build": "npx esbuild server.ts --bundle --platform=node --format=esm --outfile=dist/server.mjs --external:@anthropic-ai/claude-code --target=node18"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-code": "^2.1.100",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "esbuild": "^0.25.0",
+    "tsx": "^4.19.0"
+  }
+}

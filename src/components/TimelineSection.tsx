@@ -36,7 +36,7 @@ export default function TimelineSection() {
                 <div className="glass-card depth-card glow-primary p-6 inline-block max-w-md">
                   <div className="text-3xl font-bold text-primary mb-1">2026</div>
                   <h4 className="text-sm font-bold text-text-primary mb-2">F.R.I.D.A.Y. v2.0 — Autonomous Platform</h4>
-                  <p className="text-xs text-text-muted leading-relaxed">6,502 skills. 942 agents. Multi-agent orchestration. Zero-latency command execution. The most advanced AI operations platform ever built.</p>
+                  <p className="text-xs text-text-muted leading-relaxed">9,510 skills. 996 agents. Multi-agent orchestration. Zero-latency command execution. The most advanced AI operations platform ever built.</p>
                 </div>
               </div>
               <div className="hidden md:flex items-center justify-center shrink-0">

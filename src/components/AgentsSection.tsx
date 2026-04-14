@@ -11,7 +11,7 @@ export default function AgentsSection() {
       <div className="section-inner">
         <div className="section-header">
           <h2>Agent Fleet</h2>
-          <p>942 autonomous agents organized in tiered hierarchies. Click any agent for details.</p>
+          <p>996 autonomous agents organized in tiered hierarchies. Click any agent for details.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {AGENT_TIERS.map((tier) => (

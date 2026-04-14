@@ -17,7 +17,7 @@ const jetbrains = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "F.R.I.D.A.Y. — Autonomous Intelligence Platform",
   description:
-    "Female Replacement Intelligent Digital Assistant Youth. Multi-agent orchestration, real-time threat analysis, autonomous operations. 6,502 skills. 942 agents. Zero-latency command execution.",
+    "Female Replacement Intelligent Digital Assistant Youth. Multi-agent orchestration, real-time threat analysis, autonomous operations. 9,510 skills. 996 agents. Zero-latency command execution.",
   icons: { icon: "/favicon.ico" },
 };
 

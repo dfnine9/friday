@@ -15,9 +15,9 @@ export default function Footer() {
           Stark Industries — Advanced AI Division
         </p>
         <div className="flex items-center justify-center gap-6 mb-8 flex-wrap">
-          <Stat label="Skills" value="6,502" />
+          <Stat label="Skills" value="9,510" />
           <span className="text-white/[0.08]">|</span>
-          <Stat label="Agents" value="942" />
+          <Stat label="Agents" value="996" />
           <span className="text-white/[0.08]">|</span>
           <Stat label="Commands" value="966" />
           <span className="text-white/[0.08]">|</span>

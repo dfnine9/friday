@@ -18,7 +18,7 @@ export default function SkillsSection() {
     });
   };
 
-  const selectAll = () => { setSelected(new Set(SKILL_CATEGORIES.map((c) => c.name))); toast("info", "All domains selected", "12 of 12 skill domains active"); };
+  const selectAll = () => { setSelected(new Set(SKILL_CATEGORIES.map((c) => c.name))); toast("info", "All domains selected", "18 of 18 skill domains active"); };
   const clearAll = () => { setSelected(new Set()); };
   const hasFilter = selected.size > 0;
   const selectedCount = hasFilter ? SKILL_CATEGORIES.filter((c) => selected.has(c.name)).reduce((sum, c) => sum + c.count, 0) : 0;
@@ -28,7 +28,7 @@ export default function SkillsSection() {
       <div className="section-inner">
         <div className="section-header">
           <h2>Skill Matrix</h2>
-          <p>6,502 skills across 12 specialized domains. Click cards to filter and select domains.</p>
+          <p>9,510 skills across 18 specialized domains. Click cards to filter and select domains.</p>
         </div>
 
         {/* Filter controls */}

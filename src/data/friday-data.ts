@@ -18,10 +18,10 @@ export const FRIDAY_META = {
 };
 
 export const STATS = {
-  totalSkills: 6502,
-  totalAgents: 942,
+  totalSkills: 9510,
+  totalAgents: 996,
   totalCommands: 966,
-  repositories: 30,
+  repositories: 45,
   uptime: 99.97,
   activeConnections: 147,
   tasksCompleted: 12847,
@@ -119,7 +119,7 @@ export const CAPABILITY_MODULES: CapabilityModule[] = [
     mcuReference: "Coordinated drone systems, managed comms between all team members in Endgame",
     status: "active",
     metrics: [
-      { label: "Agents", value: "942" },
+      { label: "Agents", value: "996" },
       { label: "Consensus", value: "< 100ms" },
     ],
     color: "#1856FF",
@@ -149,6 +149,12 @@ export const SKILL_CATEGORIES: SkillCategory[] = [
   { name: "Writing", count: 234, color: "#E89558", description: "Technical docs, humanized content, API references" },
   { name: "Business", count: 198, color: "#6C5CE7", description: "Product management, analytics, growth, strategy" },
   { name: "Orchestration", count: 186, color: "#3A344E", description: "Ruflo swarms, byzantine consensus, hive-mind" },
+  { name: "Marketing", count: 342, color: "#ec4899", description: "SEO, social media, content, ads, email campaigns, CRO" },
+  { name: "E-Commerce", count: 278, color: "#f59e0b", description: "Shopify, WooCommerce, Mercado Libre, inventory, payments" },
+  { name: "Communication", count: 215, color: "#06b6d4", description: "WhatsApp, Telegram, Slack, email, SMS, notifications" },
+  { name: "Life Mgmt", count: 189, color: "#22c55e", description: "Groceries, fitness, meal planning, scheduling, travel" },
+  { name: "Finance", count: 246, color: "#eab308", description: "Trading, crypto, banking, budgets, tax, portfolio" },
+  { name: "Analytics", count: 168, color: "#8b5cf6", description: "Google Analytics, Mixpanel, dashboards, data viz" },
 ];
 
 // ═══ AGENT TIERS ═══
@@ -277,7 +283,7 @@ export const SKILL_GROWTH = [
   { month: "Jan", count: 4100 },
   { month: "Feb", count: 5200 },
   { month: "Mar", count: 5900 },
-  { month: "Apr", count: 6502 },
+  { month: "Apr", count: 9510 },
 ];
 
 // ═══ MCU TIMELINE ═══
@@ -320,8 +326,8 @@ export const INTEGRATIONS: Integration[] = [
 export const TERMINAL_LINES = [
   { type: "input" as const, text: "friday --init --mode=autonomous" },
   { type: "output" as const, text: "F.R.I.D.A.Y. v2.0 initializing..." },
-  { type: "output" as const, text: "Loading 6,502 skill modules..." },
-  { type: "output" as const, text: "Activating 942 autonomous agents..." },
+  { type: "output" as const, text: "Loading 9,510 skill modules..." },
+  { type: "output" as const, text: "Activating 996 autonomous agents..." },
   { type: "output" as const, text: "Neural cores: 8/8 online" },
   { type: "output" as const, text: "Context window: 1,000,000 tokens allocated" },
   { type: "output" as const, text: "Threat intelligence: active — 2,847 threats blocked" },

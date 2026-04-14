@@ -17,7 +17,7 @@ export const TOP_COMMANDS = [
   "monitor-setup", "e2e", "tdd-green", "multi-agent-review",
 ];
 
-// Top agents (most useful, hand-picked from 932 total)
+// Top agents (most useful, hand-picked from 996 total)
 export const TOP_AGENTS = [
   "react-expert", "typescript-pro", "python-pro", "nextjs-expert",
   "security-auditor", "cloud-architect", "database-optimizer",
@@ -39,8 +39,8 @@ export const SKILL_DOMAINS: Record<string, number> = {
 };
 
 export const TOTAL_COMMANDS = 966;
-export const TOTAL_AGENTS = 932;
-export const TOTAL_SKILLS = 6502;
+export const TOTAL_AGENTS = 996;
+export const TOTAL_SKILLS = 9510;
 
 /**
  * Generate terminal response for a /command

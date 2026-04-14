@@ -40,4 +40,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.vercel
+# Tauri
+/src-tauri/target/
+
+# Sidecar
+/sidecar/node_modules/
+/sidecar/dist/
+/sidecar/.env
