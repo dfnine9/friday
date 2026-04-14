@@ -14,29 +14,45 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .manage(SidecarProcess(Mutex::new(None)))
         .setup(|app| {
-            // Launch Node.js sidecar for AI backend
+            // Find sidecar script — try bundled path first, then dev paths
             let resource_dir = app.path().resource_dir().unwrap_or_default();
-            let sidecar_path = resource_dir.join("sidecar").join("dist").join("server.cjs");
+            let candidates = vec![
+                resource_dir.join("server.mjs"),
+                resource_dir.join("sidecar").join("dist").join("server.mjs"),
+                std::path::PathBuf::from("sidecar/dist/server.mjs"),
+            ];
 
-            // Try bundled sidecar first, fall back to development path
-            let script = if sidecar_path.exists() {
-                sidecar_path.to_string_lossy().to_string()
-            } else {
-                // Development mode — sidecar at project root
-                String::from("sidecar/dist/server.cjs")
-            };
+            let script = candidates.iter()
+                .find(|p| p.exists())
+                .map(|p| p.to_string_lossy().to_string())
+                .unwrap_or_else(|| "sidecar/dist/server.mjs".to_string());
 
-            match Command::new("node").arg(&script).spawn() {
+            // Spawn sidecar with full environment passthrough
+            match Command::new("node")
+                .arg(&script)
+                .envs(std::env::vars())
+                .spawn()
+            {
                 Ok(child) => {
                     let state = app.state::<SidecarProcess>();
                     *state.0.lock().unwrap() = Some(child);
-                    println!("Friday sidecar started");
 
-                    // Wait briefly for sidecar to be ready
-                    std::thread::sleep(std::time::Duration::from_secs(2));
+                    // Poll health endpoint until ready (max 10 seconds)
+                    for i in 0..20 {
+                        std::thread::sleep(std::time::Duration::from_millis(500));
+                        if let Ok(resp) = std::process::Command::new("curl")
+                            .args(["-s", "-o", "/dev/null", "-w", "%{http_code}", "http://localhost:3141/health"])
+                            .output()
+                        {
+                            if String::from_utf8_lossy(&resp.stdout).contains("200") {
+                                println!("Friday sidecar ready ({}ms)", (i + 1) * 500);
+                                break;
+                            }
+                        }
+                    }
                 }
                 Err(e) => {
-                    eprintln!("Sidecar failed to start: {}. Running in web-only mode.", e);
+                    eprintln!("Sidecar failed: {}. Running in web-only mode.", e);
                 }
             }
 
@@ -44,10 +60,10 @@ pub fn run() {
         })
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::Destroyed = event {
-                // Kill sidecar when window closes
                 if let Some(state) = window.try_state::<SidecarProcess>() {
                     if let Some(mut child) = state.0.lock().unwrap().take() {
                         let _ = child.kill();
+                        let _ = child.wait();
                         println!("Friday sidecar stopped");
                     }
                 }

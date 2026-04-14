@@ -47,3 +47,4 @@ next-env.d.ts
 /sidecar/node_modules/
 /sidecar/dist/
 /sidecar/.env
+*.env.local

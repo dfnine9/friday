@@ -7,8 +7,8 @@
 
 import { API_BASE } from "@/lib/api-base";
 const FISH_TTS_URL = "https://api.fish.audio/v1/tts";
-const FISH_API_KEY = "e3f52b2b29cf4126b45027a9f184f2eb";
-const FISH_VOICE_ID = "761d793cc4bb45b5a29bcfc0180d3f02";
+const FISH_API_KEY = "";
+const FISH_VOICE_ID = "";
 const STORAGE_KEY_API = "friday-fish-api-key";
 const STORAGE_KEY_VOICE = "friday-fish-voice-id";
 

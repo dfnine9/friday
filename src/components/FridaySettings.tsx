@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { X, ExternalLink, Check, Zap, Volume2 } from "lucide-react";
 import { MODELS, getActiveModelId, setActiveModelId } from "@/lib/model-configs";
 import { getFishApiKey, getFishVoiceId, setFishApiKey, setFishVoiceId, hasFishKey } from "@/lib/fish-tts";
+import { API_BASE } from "@/lib/api-base";
 import clsx from "clsx";
 
 type Props = { open: boolean; onClose: () => void };
@@ -35,6 +36,21 @@ export default function FridaySettings({ open, onClose }: Props) {
     setActiveModelId(activeModel);
     if (fishKey.trim()) setFishApiKey(fishKey.trim());
     if (fishVoice.trim()) setFishVoiceId(fishVoice.trim());
+
+    // Also write to sidecar config file (~/friday-config.json) for desktop mode
+    const sidecarConfig: Record<string, string> = {};
+    const claudeKey = keys["claude"]?.trim();
+    if (claudeKey) sidecarConfig.ANTHROPIC_API_KEY = claudeKey;
+    if (fishKey.trim()) sidecarConfig.FISH_API_KEY = fishKey.trim();
+    if (fishVoice.trim()) sidecarConfig.FISH_VOICE_ID = fishVoice.trim();
+    if (Object.keys(sidecarConfig).length > 0) {
+      fetch(`${API_BASE}/api/config`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(sidecarConfig),
+      }).catch(() => {}); // Silently fail if sidecar not running
+    }
+
     window.dispatchEvent(new CustomEvent("friday-settings-changed"));
     onClose();
   }
